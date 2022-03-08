@@ -1,0 +1,461 @@
+        -:    0:Source:C:/Users/Asus/CLionProjects/untitled/menu.cpp
+        -:    0:Graph:C:\Users\Asus\CLionProjects\untitled\cmake-build-debug-coverage\CMakeFiles\untitled.dir\menu.cpp.gcno
+        -:    0:Data:C:\Users\Asus\CLionProjects\untitled\cmake-build-debug-coverage\CMakeFiles\untitled.dir\menu.cpp.gcda
+        -:    0:Runs:1
+        -:    1:// menu.cpp : Defines the entry point for the console application.
+        -:    2://
+        -:    3:
+        -:    4:
+        -:    5:#include<conio.h>
+        -:    6:#include<string>
+        -:    7:#include<iostream>
+        -:    8:using namespace std;
+        -:    9:
+        -:   10:
+        -:   11://przykładowa implementacja tablicy ale tylko jest TYLKO szkielet
+        -:   12://staramy się unikać używania funkcji we/wy w klasie (opócz metody  display)
+        -:   13:class Table
+        -:   14:{
+        -:   15:    int *tab;
+        -:   16:    int cnt=0; //ilość elementów w tablicy
+        -:   17:public:
+        -:   18:
+        -:   19:    int loadFromFile(string FileName);
+        -:   20:
+        -:   21:    bool IsValueInTable(int val);
+        -:   22:
+        -:   23:    void addValue(int index, int value);
+        -:   24:
+        -:   25:    void deleteFromTable(int index);
+        -:   26:
+        -:   27:    void display();
+        -:   28:
+        -:   29:    void generateTable(int size);
+        -:   30:
+        -:   31:    void sizeUP();
+        -:   32:
+        -:   33:};
+        -:   34:
+        -:   35:
+function _ZN5Table14IsValueInTableEi called 0 returned 0% blocks executed 0%
+    #####:   36:bool Table::IsValueInTable(int val) {
+    #####:   37:    for (int i = 0; i < cnt; i++) {
+    %%%%%:   37-block  0
+    %%%%%:   37-block  1
+    %%%%%:   37-block  2
+branch  0 never executed
+branch  1 never executed
+    #####:   38:        if (tab[i] == val) return true;
+    %%%%%:   38-block  0
+branch  0 never executed
+branch  1 never executed
+    %%%%%:   38-block  1
+        -:   39:    }
+    #####:   40:    return false;
+    %%%%%:   40-block  0
+        -:   41:}
+        -:   42:
+function _ZN5Table8addValueEii called 3 returned 100% blocks executed 94%
+        3:   43:void Table::addValue(int index, int value) {
+        -:   44:
+        3:   45:    cnt++;
+       3*:   46:    int *tabTemp = new int[cnt];
+        3:   46-block  0
+branch  0 taken 3 (fallthrough)
+branch  1 taken 0
+        3:   46-block  1
+    %%%%%:   46-block  2
+call    2 never executed
+        3:   46-block  3
+call    3 returned 3
+        -:   47:
+        5:   48:    for(int i=0; i<index; i++) tabTemp[i]=tab[i];
+        2:   48-block  0
+        5:   48-block  1
+branch  0 taken 2
+branch  1 taken 3 (fallthrough)
+        3:   49:    tabTemp[index]=value;
+        -:   50:
+        -:   51:
+        4:   52:    for(int i=index, temp; i<cnt-1;){
+        3:   52-block  0
+        4:   52-block  1
+branch  0 taken 1
+branch  1 taken 3 (fallthrough)
+        1:   53:        temp = tab[i];
+        1:   54:        tabTemp[i++]=temp;
+        1:   54-block  0
+        -:   55:    }
+        -:   56:
+        3:   57:    if (tab != NULL) delete[] tab; //zwolnij pamięć zajmowaną przez stare dane
+        3:   57-block  0
+branch  0 taken 2 (fallthrough)
+branch  1 taken 1
+        2:   57-block  1
+branch  2 taken 2 (fallthrough)
+branch  3 taken 0
+        2:   57-block  2
+call    4 returned 2
+        9:   58:    for(int i=0; i<cnt;i++) cout<<tabTemp[i];
+        3:   58-block  0
+        6:   58-block  1
+call    0 returned 6
+        9:   58-block  2
+branch  1 taken 6
+branch  2 taken 3 (fallthrough)
+        3:   59:    tab = tabTemp;
+        3:   60:}
+        -:   61:
+        -:   62:
+function _ZN5Table7displayEv called 3 returned 100% blocks executed 100%
+        3:   63:void Table::display() {
+        9:   64:    for (int i = 0; i < cnt; i++) cout << tab[i];
+        3:   64-block  0
+        6:   64-block  1
+call    0 returned 6
+        9:   64-block  2
+branch  1 taken 6
+branch  2 taken 3 (fallthrough)
+        3:   65:}
+        -:   66:
+function _ZN5Table13generateTableEi called 0 returned 0% blocks executed 0%
+    #####:   67:void Table::generateTable(int size) {
+        -:   68:
+    #####:   69:}
+        -:   70:
+function _ZN5Table15deleteFromTableEi called 0 returned 0% blocks executed 0%
+    #####:   71:void Table::deleteFromTable(int index) {
+        -:   72:
+    #####:   73:}
+        -:   74:
+function _ZN5Table12loadFromFileENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:   75:int Table::loadFromFile(string FileName) {
+    #####:   76:    return 0;
+    %%%%%:   76-block  0
+        -:   77:}
+        -:   78:
+        -:   79:
+        -:   80:
+function _Z11displayMenuNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 5 returned 100% blocks executed 100%
+        5:   81:void displayMenu(string info)
+        -:   82:{
+        5:   83:    cout << endl;
+        5:   83-block  0
+call    0 returned 5
+        5:   84:    cout << info << endl;
+call    0 returned 5
+call    1 returned 5
+        5:   85:    cout << "1.Wczytaj z pliku" << endl;
+call    0 returned 5
+call    1 returned 5
+        5:   86:    cout << "2.Usun" << endl;
+call    0 returned 5
+call    1 returned 5
+        5:   87:    cout << "3.Dodaj" << endl;
+call    0 returned 5
+call    1 returned 5
+        5:   88:    cout << "4.Znajdz" << endl;
+call    0 returned 5
+call    1 returned 5
+        5:   89:    cout << "5.Utworz losowo" << endl;
+call    0 returned 5
+call    1 returned 5
+        5:   90:    cout << "6.Wyswietl" << endl;
+call    0 returned 5
+call    1 returned 5
+        5:   91:    cout << "7.Test (pomiary)" << endl;
+call    0 returned 5
+call    1 returned 5
+        5:   92:    cout << "0.Powrot do menu" << endl;
+call    0 returned 5
+call    1 returned 5
+        5:   93:    cout << "Podaj opcje:";
+call    0 returned 5
+        5:   94:}
+        -:   95:
+        -:   96:
+        -:   97:Table myTab; //myTab może być dynamiczna, może byc zadeklarowana w manu_table
+        -:   98:
+function _Z10menu_tablev called 1 returned 100% blocks executed 36%
+        1:   99:void menu_table()
+        -:  100:{
+        -:  101:    char opt;
+        1:  102:    string fileName;
+        1:  102-block  0
+call    0 returned 1
+        -:  103:    int index, value;
+        -:  104:
+        -:  105:
+        -:  106:    do{
+        5:  107:        displayMenu("--- TABLICA ---");
+        5:  107-block  0
+call    0 returned 5
+call    1 returned 5
+branch  2 taken 5 (fallthrough)
+branch  3 taken 0 (throw)
+        5:  107-block  1
+call    4 returned 5
+branch  5 taken 5 (fallthrough)
+branch  6 taken 0 (throw)
+        5:  107-block  2
+call    7 returned 5
+call    8 returned 5
+    $$$$$:  107-block  3
+call    9 never executed
+    $$$$$:  107-block  4
+    $$$$$:  107-block  5
+call   10 never executed
+    $$$$$:  107-block  6
+        5:  108:        opt = getche();
+call    0 returned 5
+branch  1 taken 5 (fallthrough)
+branch  2 taken 0 (throw)
+        5:  109:        cout << endl;
+        5:  109-block  0
+call    0 returned 5
+branch  1 taken 5 (fallthrough)
+branch  2 taken 0 (throw)
+        5:  110:        switch (opt){
+        5:  110-block  0
+branch  0 taken 0
+branch  1 taken 0
+branch  2 taken 3
+branch  3 taken 0
+branch  4 taken 0
+branch  5 taken 0
+branch  6 taken 0
+branch  7 taken 2
+    #####:  111:            case '1': //tutaj wczytytwanie  tablicy z pliku
+    #####:  112:                cout << " Podaj nazwę zbioru:";
+    %%%%%:  112-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  113:                cin >> fileName;
+    %%%%%:  113-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  114:                myTab.loadFromFile(fileName);
+    %%%%%:  114-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    %%%%%:  114-block  1
+call    3 never executed
+call    4 never executed
+    #####:  115:                myTab.display();
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  116:                break;
+    %%%%%:  116-block  0
+        -:  117:
+    #####:  118:            case '2': //tutaj usuwanie elemenu z tablicy
+    #####:  119:                cout << " podaj index:";
+    %%%%%:  119-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  120:                cin >> index;
+    %%%%%:  120-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  121:                myTab.deleteFromTable(index);
+    %%%%%:  121-block  0
+call    0 never executed
+    #####:  122:                myTab.display();
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  123:                break;
+    %%%%%:  123-block  0
+        -:  124:
+        3:  125:            case '3': //tutaj dodawanie elemetu do tablicy
+        3:  126:                cout << " podaj index:";
+        3:  126-block  0
+call    0 returned 3
+branch  1 taken 3 (fallthrough)
+branch  2 taken 0 (throw)
+        3:  127:                cin >> index;
+        3:  127-block  0
+call    0 returned 3
+branch  1 taken 3 (fallthrough)
+branch  2 taken 0 (throw)
+        3:  128:                cout << " podaj waertość:";
+        3:  128-block  0
+call    0 returned 3
+branch  1 taken 3 (fallthrough)
+branch  2 taken 0 (throw)
+        3:  129:                cin >> value;
+        3:  129-block  0
+call    0 returned 3
+branch  1 taken 3 (fallthrough)
+branch  2 taken 0 (throw)
+        -:  130:
+        3:  131:                myTab.addValue(index,value);
+        3:  131-block  0
+call    0 returned 3
+branch  1 taken 3 (fallthrough)
+branch  2 taken 0 (throw)
+        3:  132:                myTab.display();
+        3:  132-block  0
+call    0 returned 3
+branch  1 taken 3 (fallthrough)
+branch  2 taken 0 (throw)
+        3:  133:                break;
+        3:  133-block  0
+        -:  134:
+    #####:  135:            case '4': //tutaj znajdowanie elemetu w tablicy
+    #####:  136:                cout << " podaj waertość:";
+    %%%%%:  136-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  137:                cin >> value;
+    %%%%%:  137-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  138:                if (myTab.IsValueInTable(value))
+    %%%%%:  138-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  139:                    cout << "poadana wartośc jest w tablicy";
+    %%%%%:  139-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+        -:  140:                else
+    #####:  141:                    cout << "poadanej wartości NIE ma w tablicy";
+    %%%%%:  141-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  142:                break;
+    %%%%%:  142-block  0
+        -:  143:
+    #####:  144:            case '5':  //tutaj generowanie  tablicy
+    #####:  145:                cout << "Podaj ilość elementów tablicy:";
+    %%%%%:  145-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  146:                cin >> value;
+    %%%%%:  146-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  147:                myTab.generateTable(value);
+    %%%%%:  147-block  0
+call    0 never executed
+    #####:  148:                myTab.display();
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  149:                break;
+    %%%%%:  149-block  0
+        -:  150:
+    #####:  151:            case '6':  //tutaj wyświetlanie tablicy
+    #####:  152:                myTab.display();
+    %%%%%:  152-block  0
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+    #####:  153:                break;
+    %%%%%:  153-block  0
+        -:  154:
+    #####:  155:            case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego
+        -:  156:                // można sobie tu dodać własne case'y
+    #####:  157:                break;
+    %%%%%:  157-block  0
+        -:  158:        }
+        -:  159:
+        5:  160:    } while (opt != '0');
+        5:  160-block  0
+branch  0 taken 4
+branch  1 taken 1 (fallthrough)
+        1:  161:}
+        1:  161-block  0
+call    0 returned 1
+    $$$$$:  161-block  1
+call    1 never executed
+        -:  162:
+function _Z9menu_listv called 0 returned 0% blocks executed 0%
+    #####:  163:void menu_list()
+        -:  164:{
+        -:  165:    //analogicznie jak menu_table()
+    #####:  166:}
+        -:  167:
+function _Z9menu_heapv called 0 returned 0% blocks executed 0%
+    #####:  168:void menu_heap()
+        -:  169:{
+        -:  170:    //analogicznie jak menu_table()
+    #####:  171:}
+        -:  172:
+function main called 1 returned 100% blocks executed 83%
+        2:  173:int main(int argc, char* argv[])
+        -:  174:{
+        -:  175:
+        -:  176:    char option;
+        -:  177:    do{
+        2:  178:        cout << endl;
+        2:  178-block  0
+call    0 returned 2
+        2:  179:        cout << "==== MENU GLOWNE ===" << endl;
+call    0 returned 2
+call    1 returned 2
+        2:  180:        cout << "1.Tablica" << endl;
+call    0 returned 2
+call    1 returned 2
+        2:  181:        cout << "2.Lista" << endl;
+call    0 returned 2
+call    1 returned 2
+        2:  182:        cout << "3.Kopiec" << endl;
+call    0 returned 2
+call    1 returned 2
+        2:  183:        cout << "0.Wyjscie" << endl;
+call    0 returned 2
+call    1 returned 2
+        2:  184:        cout << "Podaj opcje:";
+call    0 returned 2
+        2:  185:        option = getche();
+call    0 returned 2
+        2:  186:        cout << endl;
+call    0 returned 2
+        -:  187:
+        2:  188:        switch (option){
+branch  0 taken 1
+branch  1 taken 0
+branch  2 taken 0
+branch  3 taken 1
+        1:  189:            case '1':
+        1:  190:                menu_table();
+        1:  190-block  0
+call    0 returned 1
+        1:  191:                break;
+        -:  192:
+    #####:  193:            case '2':
+    #####:  194:                menu_list();
+    %%%%%:  194-block  0
+call    0 never executed
+    #####:  195:                break;
+        -:  196:
+    #####:  197:            case '3':
+    #####:  198:                menu_heap();
+    %%%%%:  198-block  0
+call    0 never executed
+    #####:  199:                break;
+        -:  200:        }
+        -:  201:
+        2:  202:    } while (option != '0');
+        2:  202-block  0
+branch  0 taken 1
+branch  1 taken 1 (fallthrough)
+        -:  203:
+        -:  204:
+        1:  205:    return 0;
+        1:  205-block  0
+        -:  206:}
