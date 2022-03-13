@@ -5,6 +5,8 @@
 #include<conio.h>
 #include<string>
 #include<iostream>
+#include <fstream>
+
 using namespace std;
 
 
@@ -128,7 +130,7 @@ void List2::addValue(int index, int value) {
     ElemList *newbie = new ElemList;
     newbie->data = value;
     newbie->next = NULL; //jesli chce
-    ElemList *nextie = look4Index(index - 1);
+    ElemList *nextie = look4Index(index);
 
 
     newbie->next = nextie; //newbie is gonna know, he is b4 nextie
@@ -217,6 +219,24 @@ void List2::clearList() {
     while (maxIndex != 0){
         deleteFromList_byIndex(maxIndex);
     }
+}
+
+int List2::loadFromFile(string FileName) {
+    clearList();
+    fstream file;
+    file.open(FileName);
+
+    int size, value;
+    file >> size;
+
+    while(size){
+        file >> value;
+        addValue(maxIndex, value);
+        size--;
+    }
+
+    file.close();
+    return 0;
 }
 
 
@@ -318,7 +338,7 @@ void menu_list()
             case '1': //tutaj wczytytwanie  tablicy z pliku
                 cout << " Podaj nazwę zbioru:";
                 cin >> fileName;
-                //myList.loadFromFile(fileName);
+                myList.loadFromFile(fileName);
                 myList.display();
                 break;
 
