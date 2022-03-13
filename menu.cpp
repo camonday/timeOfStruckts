@@ -102,7 +102,9 @@ public:
 
     int loadFromFile(string FileName);
 
-    void generateTable(int size);
+    void generateList(int size);
+
+    void clearList();
 };
 
 void List2::display() { //wyswietlanie listy od przodu i tylu
@@ -204,6 +206,19 @@ void List2::deleteFromList_byIndex(int index) {
     }
 }
 
+void List2::generateList(int size) {
+    clearList();
+    for (int i=0; i<size; i++){
+        addValue(maxIndex,rand());
+    }
+}
+
+void List2::clearList() {
+    while (maxIndex != 0){
+        deleteFromList_byIndex(maxIndex);
+    }
+}
+
 
 void displayMenu(string info)
 {
@@ -222,6 +237,7 @@ void displayMenu(string info)
 
 
 Table myTab; //myTab może być dynamiczna, może byc zadeklarowana w manu_table
+List2 myList;
 
 void menu_table()
 {
@@ -289,7 +305,66 @@ void menu_table()
 
 void menu_list()
 {
-    //analogicznie jak menu_table()
+    char opt;
+    string fileName;
+    int index, value;
+
+
+    do{
+        displayMenu("--- LISTA ---");
+        opt = getche();
+        cout << endl;
+        switch (opt){
+            case '1': //tutaj wczytytwanie  tablicy z pliku
+                cout << " Podaj nazwę zbioru:";
+                cin >> fileName;
+                //myList.loadFromFile(fileName);
+                myList.display();
+                break;
+
+            case '2': //tutaj usuwanie elemenu z tablicy
+                cout << " podaj wartosc:";
+                cin >> value;
+                myList.deleteFromList_byValue(value);
+                myList.display();
+                break;
+
+            case '3': //tutaj dodawanie elemetu do tablicy
+                cout << " podaj index:";
+                cin >> index;
+                cout << " podaj waertość:";
+                cin >> value;
+
+                myList.addValue(index,value);
+                myList.display();
+                break;
+
+            case '4': //tutaj znajdowanie elemetu w tablicy
+                cout << " podaj waertość:";
+                cin >> value;
+                if (myList.look4Value(value))
+                    cout << "poadana wartośc jest w tablicy";
+                else
+                    cout << "poadanej wartości NIE ma w tablicy";
+                break;
+
+            case '5':  //tutaj generowanie  tablicy
+                cout << "Podaj ilość elementów tablicy:";
+                cin >> value;
+                myList.generateList(value);
+                myList.display();
+                break;
+
+            case '6':  //tutaj wyświetlanie tablicy
+                myList.display();
+                break;
+
+            case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego
+                // można sobie tu dodać własne case'y
+                break;
+        }
+
+    } while (opt != '0');
 }
 
 void menu_heap()
