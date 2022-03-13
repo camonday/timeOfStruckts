@@ -91,6 +91,8 @@ public:
 
     ElemList * look4Index(int index);
 
+    bool look4Value(int value);
+
     void addValue(int index, int value);
 
     void deleteFromList(int index);
@@ -102,7 +104,7 @@ public:
     void generateTable(int size);
 };
 
-void List2::display() {
+void List2::display() { //wyswietlanie listy od przodu i tylu
     temp=head;
     while(temp != NULL)
     {
@@ -122,7 +124,7 @@ void List2::addValue(int index, int value) {
 
     ElemList *newbie = new ElemList;
     newbie->data = value;
-    newbie->next = NULL;
+    newbie->next = NULL; //jesli chce
     ElemList *previe = look4Index(index-1);
 
     newbie->prev = previe;
@@ -139,6 +141,15 @@ List2::ElemList * List2::look4Index(int index) {
     temp=head;
     for(int i=0; i<=index;i++) temp=temp->next;
     return temp;
+}
+
+bool List2::look4Value(int value) { //szukam wartosci
+    temp=head;
+    while(temp != NULL){
+        if(temp->data == value) return true;
+        temp = temp->next;
+    }
+    return false;
 }
 
 
