@@ -109,6 +109,13 @@ void List2::display() {
         cout << temp->data << " ";
         temp  = temp->next;
     }
+    cout << "\n";
+    temp = tail;
+    while(temp != NULL)
+    {
+        cout << temp->data << " ";
+        temp  = temp->prev;
+    }
 }
 
 void List2::addValue(int index, int value) {
