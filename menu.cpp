@@ -84,20 +84,21 @@ class List2 {
     ElemList *head = NULL;
     ElemList *tail = NULL;
     ElemList *temp = NULL;
+    int maxIndex=0;
 
 public:
 
     void display();
 
     ElemList * look4Index(int index);
+    ElemList * look4Value(int value, int dif); //dif is
 
     bool look4Value(int value);
 
     void addValue(int index, int value);
 
-    void deleteFromList(int index);
-
-    bool IsValueInList(int val);
+    void deleteFromList_byValue(int value);
+    void deleteFromList_byIndex(int index);
 
     int loadFromFile(string FileName);
 
@@ -125,31 +126,82 @@ void List2::addValue(int index, int value) {
     ElemList *newbie = new ElemList;
     newbie->data = value;
     newbie->next = NULL; //jesli chce
-    ElemList *previe = look4Index(index-1);
+    ElemList *nextie = look4Index(index - 1);
 
-    newbie->prev = previe;
-    if (previe != NULL) {
-    newbie->next = previe->next;
-    previe->next = newbie;
-    } else head = newbie;
-    if(newbie->next != NULL) newbie->next->prev= newbie;
-    else tail = newbie;
+
+    newbie->next = nextie; //newbie is gonna know, he is b4 nextie
+    if (nextie != NULL) {
+        newbie->prev = nextie->prev;
+        nextie->prev = newbie;
+    } else{
+        if (tail != NULL) tail->next=newbie;
+        newbie->prev=tail;
+        tail = newbie;
+    }
+
+    if(newbie->prev != NULL) newbie->prev->next= newbie;
+    else {
+        head = newbie;
+    }
+
+    maxIndex++;
 
 }
 
 List2::ElemList * List2::look4Index(int index) {
     temp=head;
-    for(int i=0; i<=index;i++) temp=temp->next;
+    if (maxIndex < index){
+        cout<<"\nIndex too big, I look for biggest possible index\n";
+        index = maxIndex;
+    }
+    for(int i=0; i<index;i++){
+        temp=temp->next;
+    }
     return temp;
 }
 
 bool List2::look4Value(int value) { //szukam wartosci
+    if(look4Value(value,1) !=NULL) return true;
+    return false;
+}
+
+List2::ElemList *List2::look4Value(int value, int dif) { // dif is redundant, used to diferenciate betwenn elemlist and bool function
     temp=head;
     while(temp != NULL){
-        if(temp->data == value) return true;
+        if(temp->data == value) break;
         temp = temp->next;
     }
-    return false;
+    return temp;
+}
+
+void List2::deleteFromList_byValue(int value) {
+    temp = look4Value(value,1);
+    deleteFromList_byIndex( -1);
+}
+
+void List2::deleteFromList_byIndex(int index) {
+    if(index>=0) look4Index(index); //jesli index =-1, to temp jest juz ustawiony
+    if (temp != NULL){
+
+        if (temp -> next != NULL){
+            temp->next->prev = temp->prev;
+        } else {
+            tail=temp->prev;
+        }
+
+        if (temp->prev !=NULL){
+            temp->prev->next = temp->next;
+        } else{
+            head = temp -> next;
+        }
+
+        //clear memory
+        delete temp;
+        temp = NULL;
+        maxIndex--;
+    } else {
+        cout << "Nothing to delete";
+    }
 }
 
 
