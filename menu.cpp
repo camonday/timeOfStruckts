@@ -30,6 +30,14 @@ public:
 
     void generateTable(int size);
 
+    int getValue(int i) {
+        return tab[i];
+    }
+
+    void clearTable(){
+        delete(tab);
+        cnt=0;
+    };
 };
 
 bool Table::IsValueInTable(int val) {
@@ -51,11 +59,11 @@ void Table::addValue(int index, int value) {
     for(int i=index, temp; i<cnt-1;){
         temp = tab[i];
         tabTemp[++i]=temp;
-        cout<<tabTemp[i]<<" ";
+        //cout<<tabTemp[i]<<" ";
     }
 
     if (tab != NULL) delete[] tab; //zwolnij pamięć zajmowaną przez stare dane
-    for(int i=0; i<cnt;i++) cout<<tabTemp[i];
+    //for(int i=0; i<cnt;i++) cout<<tabTemp[i];
     tab = tabTemp;
 }
 
@@ -64,7 +72,11 @@ void Table::display() {
 }
 
 void Table::generateTable(int size) {
-
+    clearTable();
+    while (size){
+        addValue(0,rand());
+        size--;
+    }
 }
 
 void Table::deleteFromTable(int index) {
@@ -198,13 +210,14 @@ void List2::deleteFromList_byIndex(int index) {
         } else{
             head = temp -> next;
         }
+        maxIndex--;
 
         //clear memory
         delete temp;
         temp = NULL;
-        maxIndex--;
+
     } else {
-        cout << "Nothing to delete";
+        cout << "Nothing to delete "<<maxIndex;
     }
 }
 
@@ -212,12 +225,14 @@ void List2::generateList(int size) {
     clearList();
     for (int i=0; i<size; i++){
         addValue(maxIndex,rand());
+        cout<<".";
     }
 }
 
 void List2::clearList() {
     while (maxIndex != 0){
-        deleteFromList_byIndex(maxIndex);
+
+        deleteFromList_byIndex(maxIndex-1);
     }
 }
 
@@ -258,6 +273,9 @@ void displayMenu(string info)
 
 Table myTab; //myTab może być dynamiczna, może byc zadeklarowana w manu_table
 List2 myList;
+//int values[];
+//Table indexes;
+clock_t timeStart, timeEnd, timeTemp, timeSum;
 
 void menu_table()
 {
@@ -328,6 +346,7 @@ void menu_list()
     char opt;
     string fileName;
     int index, value;
+    int population, trial;
 
 
     do{
@@ -381,7 +400,56 @@ void menu_list()
 
             case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego
                 // można sobie tu dodać własne case'y
+
+               cout<<"Co testujesz?\n1) Dodaj do przodu"
+                     "\n2) dodaj w losowe miejsce"
+                     "\n3) dodaj na koniec"
+                     "\n4) usun z przodu"
+                     "\n5) usun losowe"
+                     "\n6) usun z tylu"
+                     "\n7) szukaj";
+
+                cin>> opt;
+               switch(opt) {
+                   case '1':
+                   cout << "Podaj wielkosc populacji";
+                   cin >> population;
+                   myList.generateList(population);
+                   //cout << "Podaj wielkosc probki (najlepiej przynajmniej 10 000)";
+                   //cin >> trial;
+                   trial = 50000;
+                   int *values = new int[trial];
+                   for(int i =0; i<=trial;i++) values[i]=rand();
+                   //values.generateTable(trial);
+
+                   //dodawanie na poczatek
+                   for (int i = 1; i <= 100; i++) {
+
+                       cout << endl << i;
+                       cout << " prev start: " << timeStart << endl;
+                       timeStart = clock();
+
+                       for (int j = 0; j < trial; j++) {
+                           myList.addValue(0, values[i]);
+                       }
+
+                       timeEnd = clock();
+
+                       timeTemp = timeEnd - timeStart;
+                       timeSum += timeTemp;
+                       cout << " timeTemp " << timeTemp;
+                   }
+
+                   cout << "\nZrobilismy 100 populacji wielkosci: " << population;
+                   cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
+                   cout << "\n Laczny czas to: ";
+                   cout << timeSum;
+                   break;
+               }
                 break;
+
+
+
         }
 
     } while (opt != '0');
