@@ -417,13 +417,14 @@ void menu_list()
                    myList.generateList(population);
                    //cout << "Podaj wielkosc probki (najlepiej przynajmniej 10 000)";
                    //cin >> trial;
-                   trial = 50000;
+                   trial = population/4;
                    int *values = new int[trial];
-                   for(int i =0; i<=trial;i++) values[i]=rand();
+
                    //values.generateTable(trial);
 
                    //dodawanie na poczatek
                    for (int i = 1; i <= 100; i++) {
+                       for(int j =0; j<=trial;j++) values[j]=rand();
 
                        cout << endl << i;
                        cout << " prev start: " << timeStart << endl;
