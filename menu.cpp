@@ -6,9 +6,10 @@
 #include<string>
 #include<iostream>
 #include <fstream>
+#include <chrono>
 
 using namespace std;
-
+using namespace std::chrono;
 
 //przykładowa implementacja tablicy ale tylko jest TYLKO szkielet
 //staramy się unikać używania funkcji we/wy w klasie (opócz metody  display)
@@ -59,16 +60,16 @@ void Table::addValue(int index, int value) {
     for(int i=index, temp; i<cnt-1;){
         temp = tab[i];
         tabTemp[++i]=temp;
-        //cout<<tabTemp[i]<<" ";
+        //std::cout<<tabTemp[i]<<" ";
     }
 
     if (tab != NULL) delete[] tab; //zwolnij pamięć zajmowaną przez stare dane
-    //for(int i=0; i<cnt;i++) cout<<tabTemp[i];
+    //for(int i=0; i<cnt;i++) std::cout<<tabTemp[i];
     tab = tabTemp;
 }
 
 void Table::display() {
-    for (int i = 0; i < cnt; i++) cout << tab[i];
+    for (int i = 0; i < cnt; i++) std::cout << tab[i];
 }
 
 void Table::generateTable(int size) {
@@ -125,14 +126,14 @@ void List2::display() { //wyswietlanie listy od przodu i tylu
     temp=head;
     while(temp != NULL)
     {
-        cout << temp->data << " ";
+        std::cout << temp->data << " ";
         temp  = temp->next;
     }
-    cout << "\n";
+    std::cout << "\n";
     temp = tail;
     while(temp != NULL)
     {
-        cout << temp->data << " ";
+        std::cout << temp->data << " ";
         temp  = temp->prev;
     }
 }
@@ -167,7 +168,7 @@ void List2::addValue(int index, int value) {
 List2::ElemList * List2::look4Index(int index) {
     temp=head;
     if (maxIndex < index){
-        cout<<"\nIndex too big, I look for biggest possible index\n";
+        std::cout<<"\nIndex too big, I look for biggest possible index\n";
         index = maxIndex;
     }
     for(int i=0; i<index;i++){
@@ -217,7 +218,7 @@ void List2::deleteFromList_byIndex(int index) {
         temp = NULL;
 
     } else {
-        cout << "Nothing to delete "<<maxIndex;
+        std::cout << "Nothing to delete "<<maxIndex;
     }
 }
 
@@ -225,7 +226,7 @@ void List2::generateList(int size) {
     clearList();
     for (int i=0; i<size; i++){
         addValue(maxIndex,rand());
-        cout<<".";
+        //std::cout<<".";
     }
 }
 
@@ -257,17 +258,17 @@ int List2::loadFromFile(string FileName) {
 
 void displayMenu(string info)
 {
-    cout << endl;
-    cout << info << endl;
-    cout << "1.Wczytaj z pliku" << endl;
-    cout << "2.Usun" << endl;
-    cout << "3.Dodaj" << endl;
-    cout << "4.Znajdz" << endl;
-    cout << "5.Utworz losowo" << endl;
-    cout << "6.Wyswietl" << endl;
-    cout << "7.Test (pomiary)" << endl;
-    cout << "0.Powrot do menu" << endl;
-    cout << "Podaj opcje:";
+    std::cout << std::endl;
+    std::cout << info << std::endl;
+    std::cout << "1.Wczytaj z pliku" << std::endl;
+    std::cout << "2.Usun" << std::endl;
+    std::cout << "3.Dodaj" << std::endl;
+    std::cout << "4.Znajdz" << std::endl;
+    std::cout << "5.Utworz losowo" << std::endl;
+    std::cout << "6.Wyswietl" << std::endl;
+    std::cout << "7.Test (pomiary)" << std::endl;
+    std::cout << "0.Powrot do menu" << std::endl;
+    std::cout << "Podaj opcje:";
 }
 
 
@@ -275,7 +276,8 @@ Table myTab; //myTab może być dynamiczna, może byc zadeklarowana w manu_table
 List2 myList;
 //int values[];
 //Table indexes;
-clock_t timeStart, timeEnd, timeTemp, timeSum;
+steady_clock::time_point timeStart, timeEnd;
+duration<double> timeTemp, timeSum;
 
 void menu_table()
 {
@@ -287,44 +289,44 @@ void menu_table()
     do{
         displayMenu("--- TABLICA ---");
         opt = getche();
-        cout << endl;
+        std::cout << std::endl;
         switch (opt){
             case '1': //tutaj wczytytwanie  tablicy z pliku
-                cout << " Podaj nazwę zbioru:";
-                cin >> fileName;
+                std::cout << " Podaj nazwę zbioru:";
+                std::cin >> fileName;
                 myTab.loadFromFile(fileName);
                 myTab.display();
                 break;
 
             case '2': //tutaj usuwanie elemenu z tablicy
-                cout << " podaj index:";
-                cin >> index;
+                std::cout << " podaj index:";
+                std::cin >> index;
                 myTab.deleteFromTable(index);
                 myTab.display();
                 break;
 
             case '3': //tutaj dodawanie elemetu do tablicy
-                cout << " podaj index:";
-                cin >> index;
-                cout << " podaj waertość:";
-                cin >> value;
+                std::cout << " podaj index:";
+                std::cin >> index;
+                std::cout << " podaj waertość:";
+                std::cin >> value;
 
                 myTab.addValue(index,value);
                 myTab.display();
                 break;
 
             case '4': //tutaj znajdowanie elemetu w tablicy
-                cout << " podaj waertość:";
-                cin >> value;
+                std::cout << " podaj waertość:";
+                std::cin >> value;
                 if (myTab.IsValueInTable(value))
-                    cout << "poadana wartośc jest w tablicy";
+                    std::cout << "poadana wartośc jest w tablicy";
                 else
-                    cout << "poadanej wartości NIE ma w tablicy";
+                    std::cout << "poadanej wartości NIE ma w tablicy";
                 break;
 
             case '5':  //tutaj generowanie  tablicy
-                cout << "Podaj ilość elementów tablicy:";
-                cin >> value;
+                std::cout << "Podaj ilość elementów tablicy:";
+                std::cin >> value;
                 myTab.generateTable(value);
                 myTab.display();
                 break;
@@ -352,44 +354,44 @@ void menu_list()
     do{
         displayMenu("--- LISTA ---");
         opt = getche();
-        cout << endl;
+        std::cout << std::endl;
         switch (opt){
             case '1': //tutaj wczytytwanie  tablicy z pliku
-                cout << " Podaj nazwę zbioru:";
-                cin >> fileName;
+                std::cout << " Podaj nazwę zbioru:";
+                std::cin >> fileName;
                 myList.loadFromFile(fileName);
                 myList.display();
                 break;
 
             case '2': //tutaj usuwanie elemenu z tablicy
-                cout << " podaj wartosc:";
-                cin >> value;
+                std::cout << " podaj wartosc:";
+                std::cin >> value;
                 myList.deleteFromList_byValue(value);
                 myList.display();
                 break;
 
             case '3': //tutaj dodawanie elemetu do tablicy
-                cout << " podaj index:";
-                cin >> index;
-                cout << " podaj waertość:";
-                cin >> value;
+                std::cout << " podaj index:";
+                std::cin >> index;
+                std::cout << " podaj waertość:";
+                std::cin >> value;
 
                 myList.addValue(index,value);
                 myList.display();
                 break;
 
             case '4': //tutaj znajdowanie elemetu w tablicy
-                cout << " podaj waertość:";
-                cin >> value;
+                std::cout << " podaj waertość:";
+                std::cin >> value;
                 if (myList.look4Value(value))
-                    cout << "poadana wartośc jest w tablicy";
+                    std::cout << "poadana wartośc jest w tablicy";
                 else
-                    cout << "poadanej wartości NIE ma w tablicy";
+                    std::cout << "poadanej wartości NIE ma w tablicy";
                 break;
 
             case '5':  //tutaj generowanie  tablicy
-                cout << "Podaj ilość elementów tablicy:";
-                cin >> value;
+                std::cout << "Podaj ilość elementów tablicy:";
+                std::cin >> value;
                 myList.generateList(value);
                 myList.display();
                 break;
@@ -401,7 +403,7 @@ void menu_list()
             case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego
                 // można sobie tu dodać własne case'y
 
-               cout<<"Co testujesz?\n1) Dodaj do przodu"
+               std::cout<<"Co testujesz?\n1) Dodaj do przodu"
                      "\n2) dodaj w losowe miejsce"
                      "\n3) dodaj na koniec"
                      "\n4) usun z przodu"
@@ -409,43 +411,95 @@ void menu_list()
                      "\n6) usun z tylu"
                      "\n7) szukaj";
 
-                cin>> opt;
+                trial = 100;
+                int *values = new int[trial];
+                int *indexes = new int [trial];
+                std::cin>> opt;
+                std::cout << "Podaj wielkosc populacji";
+                std::cin >> population;
                switch(opt) {
                    case '1':
-                   cout << "Podaj wielkosc populacji";
-                   cin >> population;
+
                    myList.generateList(population);
-                   //cout << "Podaj wielkosc probki (najlepiej przynajmniej 10 000)";
-                   //cin >> trial;
-                   trial = population/4;
-                   int *values = new int[trial];
-
-                   //values.generateTable(trial);
-
                    //dodawanie na poczatek
                    for (int i = 1; i <= 100; i++) {
                        for(int j =0; j<=trial;j++) values[j]=rand();
 
-                       cout << endl << i;
-                       cout << " prev start: " << timeStart << endl;
-                       timeStart = clock();
+                       std::cout << std::endl << i;
+                       //std::cout << " prev start: " << timeStart. << std::endl;
+                       timeStart = steady_clock::now();
 
                        for (int j = 0; j < trial; j++) {
                            myList.addValue(0, values[i]);
                        }
 
-                       timeEnd = clock();
+                       timeEnd = steady_clock::now();
 
-                       timeTemp = timeEnd - timeStart;
+                       timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
                        timeSum += timeTemp;
-                       cout << " timeTemp " << timeTemp;
+                       std::cout << " timeTemp " << timeTemp.count();
                    }
 
-                   cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                   cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
-                   cout << "\n Laczny czas to: ";
-                   cout << timeSum;
+                   std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
+                   std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
+                   std::cout << "\n Laczny czas to: ";
+                   std::cout << timeSum.count() << "sekund";
                    break;
+
+                   case '2':
+
+                       //dodawanie na losowe
+                       for (int i = 1; i <= 100; i++) {
+                           myList.generateList(population);
+                           for(int j =0; j<=trial;j++) values[j]=rand();
+                           for(int j =0; j<=trial;j++) indexes[j]=rand() % population;
+
+                           std::cout << std::endl << i;
+                           timeStart = steady_clock::now();
+
+                           for (int j = 0; j < trial; j++) {
+                               myList.addValue(indexes[i], values[i]);
+                           }
+
+                           timeEnd = steady_clock::now();
+
+                           timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                           timeSum += timeTemp;
+                           std::cout << " timeTemp " << timeTemp.count();
+                       }
+
+                       std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
+                       std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
+                       std::cout << "\n Laczny czas to: ";
+                       std::cout << timeSum.count() << " sekund";
+                       break;
+
+                   case '3':
+
+                       //dodawanie na koniec
+                       for (int i = 1; i <= 100; i++) {
+                           myList.generateList(population);
+                           for(int j =0; j<=trial;j++) values[j]=rand();
+
+                           std::cout << std::endl << i;
+                           timeStart = steady_clock::now();
+
+                           for (int j = 0; j < trial; j++) {
+                               myList.addValue(population+j, values[i]);
+                           }
+
+                           timeEnd = steady_clock::now();
+
+                           timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                           timeSum += timeTemp;
+                           std::cout << " timeTemp " << timeTemp.count();
+                       }
+
+                       std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
+                       std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
+                       std::cout << "\n Laczny czas to: ";
+                       std::cout << timeSum.count() << " sekund";
+                       break;
                }
                 break;
 
@@ -466,15 +520,15 @@ int main(int argc, char* argv[])
 
     char option;
     do{
-        cout << endl;
-        cout << "==== MENU GLOWNE ===" << endl;
-        cout << "1.Tablica" << endl;
-        cout << "2.Lista" << endl;
-        cout << "3.Kopiec" << endl;
-        cout << "0.Wyjscie" << endl;
-        cout << "Podaj opcje:";
+        std::cout << std::endl;
+        std::cout << "==== MENU GLOWNE ===" << std::endl;
+        std::cout << "1.Tablica" << std::endl;
+        std::cout << "2.Lista" << std::endl;
+        std::cout << "3.Kopiec" << std::endl;
+        std::cout << "0.Wyjscie" << std::endl;
+        std::cout << "Podaj opcje:";
         option = getche();
-        cout << endl;
+        std::cout << std::endl;
 
         switch (option){
             case '1':
