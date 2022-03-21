@@ -115,7 +115,7 @@ public:
     void deleteFromList_byValue(int value);
     void deleteFromList_byIndex(int index);
 
-    int loadFromFile(string FileName);
+    int loadFromFile(const string& FileName);
 
     void generateList(int size);
 
@@ -237,7 +237,7 @@ void List2::clearList() {
     }
 }
 
-int List2::loadFromFile(string FileName) {
+int List2::loadFromFile(const string& FileName) {
     clearList();
     fstream file;
     file.open(FileName);
@@ -256,7 +256,7 @@ int List2::loadFromFile(string FileName) {
 }
 
 
-void displayMenu(string info)
+void displayMenu(const string& info)
 {
     std::cout << std::endl;
     std::cout << info << std::endl;
@@ -403,7 +403,8 @@ void menu_list()
             case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego
                 // można sobie tu dodać własne case'y
 
-               std::cout<<"Co testujesz?\n1) Dodaj do przodu"
+               std::cout<<"\nCo testujesz?"
+                     "\n1) Dodaj do przodu"
                      "\n2) dodaj w losowe miejsce"
                      "\n3) dodaj na koniec"
                      "\n4) usun z przodu"
@@ -500,7 +501,85 @@ void menu_list()
                        std::cout << "\n Laczny czas to: ";
                        std::cout << timeSum.count() << " sekund";
                        break;
+
+                   case '4':
+                       //usun z przodu
+                       for (int i = 1; i <= 100; i++) {
+                           myList.generateList(population);
+
+                           std::cout << std::endl << i;
+                           timeStart = steady_clock::now();
+
+                           for (int j = 0; j < trial; j++) {
+                               myList.deleteFromList_byIndex(0);
+                           }
+
+                           timeEnd = steady_clock::now();
+
+                           timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                           timeSum += timeTemp;
+                           std::cout << " timeTemp " << timeTemp.count();
+                       }
+
+                       std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
+                       std::cout << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
+                       std::cout << "\n Laczny czas to: ";
+                       std::cout << timeSum.count() << " sekund";
+                       break;
+
+                   case '6':
+                       //usun z tylu
+                       for (int i = 1; i <= 100; i++) {
+                           myList.generateList(population);
+
+                           std::cout << std::endl << i;
+                           timeStart = steady_clock::now();
+
+                           for (int j = 0; j < trial; j++) {
+                               myList.deleteFromList_byIndex(population-j);
+                           }
+
+                           timeEnd = steady_clock::now();
+
+                           timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                           timeSum += timeTemp;
+                           std::cout << " timeTemp " << timeTemp.count();
+                       }
+
+                       std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
+                       std::cout << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
+                       std::cout << "\n Laczny czas to: ";
+                       std::cout << timeSum.count() << " sekund";
+                       break;
+
+                   case '7':
+                       //wyszukaj
+                       for (int i = 1; i <= 100; i++) {
+                           myList.generateList(population);
+                           for(int j =0; j<=trial;j++) values[j]=rand();
+
+                           std::cout << std::endl << i;
+                           timeStart = steady_clock::now();
+
+                           for (int j = 0; j < trial; j++) {
+                               myList.look4Value(values[j]);
+                           }
+
+                           timeEnd = steady_clock::now();
+
+                           timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                           timeSum += timeTemp;
+                           std::cout << " timeTemp " << timeTemp.count();
+                       }
+
+                       std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
+                       std::cout << "\n Dla kazdej populacji bylo tyle wyszukiwan: " << trial;
+                       std::cout << "\n Laczny czas to: ";
+                       std::cout << timeSum.count() << " sekund";
+                       break;
+
                }
+               opt =0;
                 break;
 
 
