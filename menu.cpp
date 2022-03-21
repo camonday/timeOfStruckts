@@ -31,12 +31,9 @@ public:
 
     void generateTable(int size);
 
-    int getValue(int i) {
-        return tab[i];
-    }
-
     void clearTable(){
         delete(tab);
+        tab=NULL;
         cnt=0;
     };
 };
@@ -69,7 +66,8 @@ void Table::addValue(int index, int value) {
 }
 
 void Table::display() {
-    for (int i = 0; i < cnt; i++) std::cout << tab[i];
+    cout<<endl;
+    for (int i = 0; i < cnt; i++) std::cout << tab[i]<<" ";
 }
 
 void Table::generateTable(int size) {
@@ -81,10 +79,43 @@ void Table::generateTable(int size) {
 }
 
 void Table::deleteFromTable(int index) {
+    cnt--;
+    int *tabTemp = new int[cnt];
 
+    for(int i=0; i<index; i++) {
+        tabTemp[i]=tab[i];
+        cout<<"\ntab: "<<tab[i]<<" tabtemp: "<<tabTemp[i];
+    }
+    for(int i=index; i<cnt;i++) {
+        tabTemp[i]=tab[i+1];
+        cout<<"\ntab: "<<tab[i+1]<<" tabtemp: "<<tabTemp[i];
+    }
+    cout<<"\n tablica temp: \n";
+    for(int i=0; i<cnt;i++) std::cout<<tabTemp[i];
+
+    if (tab != NULL) delete[] tab; //zwolnij pamięć zajmowaną przez stare dane
+    cout<<"\n tablica temp: \n";
+    for(int i=0; i<cnt;i++) std::cout<<tabTemp[i];
+    tab = tabTemp;
+    cout<<"\n tablica: \n";
+    for(int i=0; i<cnt;i++) std::cout<<tab[i];
 }
 
 int Table::loadFromFile(string FileName) {
+    clearTable();
+    fstream file;
+    file.open(FileName);
+
+    int size, value;
+    file >> size;
+    while(size){
+        file >> value;
+
+        addValue(cnt, value);
+        size--;
+    }
+
+    file.close();
     return 0;
 }
 
