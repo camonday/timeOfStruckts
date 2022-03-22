@@ -31,7 +31,7 @@ public:
 
     void generateTable(int size);
 
-    void clearTable(){
+    void clearTable(){ //czyszcze tabele tzn usuwam ja z pamieci i przypisuje jej null, liczbe elementow w tab zmieniam na 0
         delete(tab);
         tab=NULL;
         cnt=0;
@@ -111,6 +111,7 @@ int Table::loadFromFile(string FileName) {
     return 0;
 }
 
+
 class List2 {
 
     struct ElemList{
@@ -119,17 +120,17 @@ class List2 {
         ElemList *next;
     };
 
-    ElemList *head = NULL;
+    ElemList *head = NULL;  //na poczatku lista jest pusta wiec nie ma ani head ani tail
     ElemList *tail = NULL;
     ElemList *temp = NULL;
-    int maxIndex=0;
+    int maxIndex=0; //maksymalny indeks jaki mozna dodac
 
 public:
 
     void display();
 
     ElemList * look4Index(int index);
-    ElemList * look4Value(int value, int dif); //dif is
+    ElemList * look4Value(int value, int dif); //dif jest redundantne by rozroznic funkcje ktora zwraca wskaznik od tej ktora zwraca wartosc bool
 
     bool look4Value(int value);
 
@@ -161,42 +162,43 @@ void List2::display() { //wyswietlanie listy od przodu i tylu
     }
 }
 
-void List2::addValue(int index, int value) {
+void List2::addValue(int index, int value) { //dodawanie wartosci
 
     ElemList *newbie = new ElemList;
     newbie->data = value;
-    newbie->next = NULL; //jesli chce
+    //newbie->next = NULL; //
     ElemList *nextie = look4Index(index);
 
 
     newbie->next = nextie; //newbie is gonna know, he is b4 nextie
-    if (nextie != NULL) {
+    if (nextie != NULL) { //jesli nie dodalismy ogona
         newbie->prev = nextie->prev;
         nextie->prev = newbie;
-    } else{
+    } else{//jesli dodalismy ogon
         if (tail != NULL) tail->next=newbie;
         newbie->prev=tail;
         tail = newbie;
     }
 
-    if(newbie->prev != NULL) newbie->prev->next= newbie;
-    else {
+    if(newbie->prev != NULL) newbie->prev->next= newbie; //jesli nie dodalismy glowy
+    else {//jesli dodalismy glowe
         head = newbie;
     }
 
-    maxIndex++;
+    maxIndex++; //zwiekszamy ilosc elementow w tablicy
 
 }
 
 List2::ElemList * List2::look4Index(int index) {
     temp=head;
     if (maxIndex < index){
-        std::cout<<"\nIndex too big, I look for biggest possible index\n";
+        //std::cout<<"\nIndex too big, I look for biggest possible index\n";
         index = maxIndex;
     }
     for(int i=0; i<index;i++){
         temp=temp->next;
     }
+    //temp jest tym co szukalismy
     return temp;
 }
 
@@ -211,7 +213,7 @@ List2::ElemList *List2::look4Value(int value, int dif) { // dif is redundant, us
         if(temp->data == value) break;
         temp = temp->next;
     }
-    return temp;
+    return temp; //temp jest tym co szukalismy
 }
 
 void List2::deleteFromList_byValue(int value) {
@@ -220,62 +222,139 @@ void List2::deleteFromList_byValue(int value) {
 }
 
 void List2::deleteFromList_byIndex(int index) {
-    if(index>=0) look4Index(index); //jesli index =-1, to temp jest juz ustawiony
+    if(index>=0) look4Index(index); //jesli index =-1, to temp jest juz ustawiony na wynik look4value, w przeciwnym wypadku ustawimy go na wynik
+                                    // look4Index
     if (temp != NULL){
 
-        if (temp -> next != NULL){
+        if (temp -> next != NULL){ //jesli temp ma potomka to ten potomek stoi teraz za tym za czym stal temp a nie za temp
             temp->next->prev = temp->prev;
         } else {
-            tail=temp->prev;
+            tail=temp->prev; //jesli nie ma potomka to byl ogonem wiec teraz ogonem bedzie to co stalo przed temp
         }
 
-        if (temp->prev !=NULL){
+        if (temp->prev !=NULL){ //analogicznie jesli temp ma/nie ma rodzica
             temp->prev->next = temp->next;
         } else{
             head = temp -> next;
         }
-        maxIndex--;
+        maxIndex--; //zmniejszamy liczbe elementów listy
 
         //clear memory
         delete temp;
         temp = NULL;
 
-    } else {
+    } else { //nie znalezlismy wartosci która mamy usunac
         std::cout << "Nothing to delete "<<maxIndex;
     }
 }
 
 void List2::generateList(int size) {
-    clearList();
+    clearList(); //czyscimy liste
     for (int i=0; i<size; i++){
         addValue(maxIndex,rand());
-        //std::cout<<".";
     }
 }
 
 void List2::clearList() {
-    while (maxIndex != 0){
-
+    while (maxIndex != 0){ //usuwamy kazdy element z kisty tak dlugo, az lista ma zero elementow
         deleteFromList_byIndex(maxIndex-1);
     }
 }
 
 int List2::loadFromFile(const string& FileName) {
-    clearList();
+    clearList(); //czyscimy liste
     fstream file;
     file.open(FileName);
 
     int size, value;
-    file >> size;
+    file >> size; //pierwsza liczba w pliku to rozmiar listy
 
-    while(size){
+    while(size!=maxIndex){
         file >> value;
-        addValue(maxIndex, value);
-        size--;
+        addValue(maxIndex, value); //addvalue zwieksza maxIndex wiec petla zatrzyma sie
+        //size--;
     }
 
     file.close();
     return 0;
+}
+
+
+class Heap {
+
+    int *heap = NULL;
+    int lvl=-1, count=0;// lvl - ile poziomów ma sterta, count - ile wezlow jest w stercie
+    int tabSize=0; //na ile wezlow tablica ma miejsce, zalezy od lvl: tabSize = 2^(lvl+1) -1
+
+public:
+    int loadFromFile(string FileName);
+
+    bool IsValueInTable(int val);
+
+    void addValue(int value);
+
+    void deleteFromTable(int index);
+
+    void display();
+
+    void generateTable(int size);
+
+    void clearTable();
+
+    void resize();
+
+    void heapify(int index);
+
+
+};
+
+void Heap::addValue(int value) {
+    if(tabSize == count) resize();
+    heap[count]=value;
+
+    heapify(count);
+
+    count++;
+}
+
+void Heap::resize() {
+    lvl++;
+    tabSize=2^(lvl+1) -1;
+    int *tabTemp = new int[tabSize];
+
+    for(int i=0; i<count; i++){
+        cout<<i<<heap[i];
+        tabTemp[i]=heap[i];
+    }
+
+    if (heap != NULL) delete[] heap; //zwolnij pamięć zajmowaną przez stare dane
+    heap = tabTemp;
+}
+
+void Heap::display() {
+    for(int i=0; i<count; i++) cout<< heap[i]<<" ";
+
+}
+
+void Heap::heapify(int index) {
+
+    if (index > 0) {
+
+        int parentID = (index-1)/2;
+        cout<<"heapifying \n";
+        int leftID = 2 * parentID + 1;
+        int rightID = leftID + 1;
+        int bigKidID = leftID;
+        if (heap[rightID] > heap[leftID]) bigKidID = rightID;
+
+        if (heap[parentID] < heap[bigKidID]) {
+            heap[parentID] += heap[bigKidID];
+            heap[bigKidID] = heap[parentID] - heap[bigKidID];
+            heap[parentID]-=heap[bigKidID];
+
+            heapify(parentID);
+        }
+    }
 }
 
 
@@ -297,6 +376,8 @@ void displayMenu(const string& info)
 
 Table myTab; //myTab może być dynamiczna, może byc zadeklarowana w manu_table
 List2 myList;
+Heap myHeap;
+
 steady_clock::time_point timeStart, timeEnd;
 duration<double> timeTemp, timeSum;
 
@@ -843,7 +924,40 @@ void menu_list()
 
 void menu_heap()
 {
-    //analogicznie jak menu_table()
+    char opt;
+    string fileName;
+    int index, value;
+    int population, trial;
+
+
+    do {
+        displayMenu("--- KOPIEC ---");
+        opt = getche();
+        std::cout << std::endl;
+        switch (opt) {
+            case '1': //tutaj wczytytwanie  tablicy z pliku
+                std::cout << " Podaj nazwę zbioru:";
+                std::cin >> fileName;
+                myList.loadFromFile(fileName);
+                myList.display();
+                break;
+
+            case '2': //tutaj usuwanie elemenu z tablicy
+                std::cout << " podaj wartosc:";
+                std::cin >> value;
+                myList.deleteFromList_byValue(value);
+                myList.display();
+                break;
+
+            case '3': //tutaj dodawanie elemetu do tablicy
+                std::cout << " podaj waertość:";
+                std::cin >> value;
+
+                myHeap.addValue(value);
+                myHeap.display();
+                break;
+        }
+    }while(opt!=0);
 }
 
 int main(int argc, char* argv[])
