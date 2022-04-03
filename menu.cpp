@@ -284,7 +284,7 @@ class Heap {
 
     int *heap = NULL;
     int count=0;// count - ile wezlow jest w stercie
-    int tabSize=0; //na ile wezlow tablica ma miejsce, zalezy od lvl: tabSize = 2^(lvl+1) -1
+    int tabSize=0;
 
 public:
     int loadFromFile(string FileName);
@@ -297,9 +297,9 @@ public:
 
     void display();
 
-    void generateTable(int size);
+    void generateHeap(int size);
 
-    void clearTable();
+    void clearHeap();
 
     void upsize();
     void downsize();
@@ -362,7 +362,6 @@ void Heap::heap_fix_up(int index) {
     if (index > 0) {
 
         int parentID = (index-1)/2;
-        cout<<"fix up \n";
 
         if (heap[parentID] < heap[index]) {
             heap[parentID] += heap[index];
@@ -375,14 +374,13 @@ void Heap::heap_fix_up(int index) {
 }
 
 void Heap::deleteFromHeap() {
-    cout<<"count b4 delete:"<<count;
-    count--;
-    heap[0]=heap[count]; //poniewaz indeksujemy od zera to indeks ostatniego elementu to liczba elementow -1
-    if(count<=tabSize-10) downsize();
-    cout<<" count aft delete:"<<count;
+    if (count > 0) {
+        count--;
+        heap[0] = heap[count]; //poniewaz indeksujemy od zera to indeks ostatniego elementu to liczba elementow -1
+        if (count <= tabSize - 10) downsize();
 
-    heap_fix_down(0);
-
+        heap_fix_down(0);
+    }
 }
 
 void Heap::downsize() {
@@ -416,6 +414,24 @@ void Heap::heap_fix_down(int index) {
     }else return;
 
     heap_fix_down(bigKidID);
+
+}
+
+void Heap::clearHeap() {
+    if (heap != NULL){
+        delete heap;
+        heap = NULL;
+        count = 0;
+        tabSize = 0;
+    }
+
+}
+
+void Heap::generateHeap(int size) {
+    clearHeap();
+    while (count<size){
+        addValue(rand());
+    }
 
 }
 
@@ -1013,6 +1029,17 @@ void menu_heap()
                 std::cin >> value;
 
                 myHeap.addValue(value);
+                myHeap.display();
+                break;
+
+            case '4': // znajdz
+                break;
+
+            case '5':
+                std::cout << " podaj waertość:";
+                std::cin >> value;
+
+                myHeap.generateHeap(value);
                 myHeap.display();
                 break;
         }
