@@ -440,8 +440,25 @@ bool Heap::IsValueInHeap(int val, int ID) {
         if (heap[ID]==val)return true;
         if (heap[ID]<val) return false;
         if (IsValueInHeap(val,2*ID+1)) return true;
-        return IsValueInHeap(val,2*ID+1);
+        return IsValueInHeap(val,2*ID+2);
     }else return false;
+}
+
+int Heap::loadFromFile(string FileName) {
+    clearHeap();
+    fstream file;
+    file.open(FileName);
+
+    int size, value;
+    file >> size;
+    while(size){
+        file >> value;
+        addValue(value);
+        size--;
+    }
+
+    file.close();
+    return 0;
 }
 
 void displayMenu(const string& info)
@@ -1024,8 +1041,8 @@ void menu_heap()
             case '1': //tutaj wczytytwanie  tablicy z pliku
                 std::cout << " Podaj nazwę zbioru:";
                 std::cin >> fileName;
-                myList.loadFromFile(fileName);
-                myList.display();
+                myHeap.loadFromFile(fileName);
+                myHeap.display();
                 break;
 
             case '2': //tutaj usuwanie elemenu z tablicy
@@ -1057,6 +1074,11 @@ void menu_heap()
                 myHeap.generateHeap(value);
                 myHeap.display();
                 break;
+
+            case '6': //wyswietl
+                myHeap.display();
+                break;
+
         }
     }while(opt!='0');
 }
