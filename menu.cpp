@@ -305,6 +305,7 @@ public:
     void downsize();
 
     void heap_fix_up(int index);
+    void heap_fix_down(int index);
 
     void printBT(const std::string& prefix, int index, bool isLeft);
 
@@ -333,9 +334,11 @@ void Heap::upsize() {
 }
 
 void Heap::display() {
+    cout<<endl;
     for(int i=0; i<count; i++) cout<< heap[i]<<" ";
 
     printBT("",0,false);
+    cout<<endl;
 }
 
 void Heap::printBT(const std::string& prefix, int index, bool isLeft)
@@ -372,9 +375,13 @@ void Heap::heap_fix_up(int index) {
 }
 
 void Heap::deleteFromHeap() {
+    cout<<"count b4 delete:"<<count;
     count--;
-    heap[0]=heap[count]; //poniewaz indeksujemy od zera to indeks ostatniego elementu toliczba elementow -1
+    heap[0]=heap[count]; //poniewaz indeksujemy od zera to indeks ostatniego elementu to liczba elementow -1
     if(count<=tabSize-10) downsize();
+    cout<<" count aft delete:"<<count;
+
+    heap_fix_down(0);
 
 }
 
@@ -391,6 +398,26 @@ void Heap::downsize() {
 
 }
 
+void Heap::heap_fix_down(int index) {
+    int bigKidID = 2*index +1;
+    int otherKidID = bigKidID +1;
+    //sprawdzmy czy ma dzieci
+    if(otherKidID>count){ //jesli jest równa, to ma tylko lewe dziecko
+        return;
+    }
+    if(otherKidID<count){ //teraz sprawdzamy czy po lewej stronie faktycznie jest wieksze dziecko
+        if(heap[otherKidID]>heap[bigKidID]){
+            bigKidID=otherKidID; //big kid napewno ma indeks wiekszego dziecka
+        }
+    }
+    //teraz zamiana
+    if(heap[index]<heap[bigKidID]){
+        swap(heap[index],heap[bigKidID]);
+    }
+
+    heap_fix_down(bigKidID);
+
+}
 
 void displayMenu(const string& info)
 {
@@ -977,10 +1004,8 @@ void menu_heap()
                 break;
 
             case '2': //tutaj usuwanie elemenu z tablicy
-                std::cout << " podaj wartosc:";
-                std::cin >> value;
-                myList.deleteFromList_byValue(value);
-                myList.display();
+                myHeap.deleteFromHeap();
+                myHeap.display();
                 break;
 
             case '3': //tutaj dodawanie elemetu do tablicy
