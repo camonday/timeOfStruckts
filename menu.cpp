@@ -289,7 +289,7 @@ class Heap {
 public:
     int loadFromFile(string FileName);
 
-    bool IsValueInTable(int val);
+    bool IsValueInHeap(int val, int ID);
 
     void addValue(int value);
 
@@ -433,6 +433,15 @@ void Heap::generateHeap(int size) {
         addValue(rand());
     }
 
+}
+
+bool Heap::IsValueInHeap(int val, int ID) {
+    if(ID <count){
+        if (heap[ID]==val)return true;
+        if (heap[ID]<val) return false;
+        if (IsValueInHeap(val,2*ID+1)) return true;
+        return IsValueInHeap(val,2*ID+1);
+    }else return false;
 }
 
 void displayMenu(const string& info)
@@ -1033,9 +1042,15 @@ void menu_heap()
                 break;
 
             case '4': // znajdz
+                std::cout << " podaj waertość:";
+                std::cin >> value;
+
+                if (myHeap.IsValueInHeap(value, 0)) {
+                    std::cout <<"Jest" ;
+                }else std::cout<<"Nie ma";
                 break;
 
-            case '5':
+            case '5': //utwórz losowo
                 std::cout << " podaj waertość:";
                 std::cin >> value;
 
