@@ -572,7 +572,7 @@ void menu_table()
                             timeStart = steady_clock::now();
 
                             for (int j = 0; j < trial; j++) {
-                                myTab.addValue(0, values[i]);
+                                myTab.addValue(0, values[j]);
                             }
 
                             timeEnd = steady_clock::now();
@@ -600,7 +600,7 @@ void menu_table()
                             timeStart = steady_clock::now();
 
                             for (int j = 0; j < trial; j++) {
-                                myTab.addValue(indexes[i], values[i]);
+                                myTab.addValue(indexes[j], values[j]);
                             }
 
                             timeEnd = steady_clock::now();
@@ -627,7 +627,7 @@ void menu_table()
                             timeStart = steady_clock::now();
 
                             for (int j = 0; j < trial; j++) {
-                                myTab.addValue(population+j, values[i]);
+                                myTab.addValue(population+j-1, values[j]);
                             }
 
                             timeEnd = steady_clock::now();
@@ -703,7 +703,7 @@ void menu_table()
                             timeStart = steady_clock::now();
 
                             for (int j = 0; j < trial; j++) {
-                                myTab.deleteFromTable(population-j);
+                                myTab.deleteFromTable(population-j-1);
                             }
 
                             timeEnd = steady_clock::now();
@@ -783,7 +783,7 @@ void menu_list()
             case '3': //tutaj dodawanie elemetu do tablicy
                 std::cout << " podaj index:";
                 std::cin >> index;
-                std::cout << " podaj waertość:";
+                std::cout << " podaj wartość:";
                 std::cin >> value;
 
                 myList.addValue(index,value);
@@ -791,7 +791,7 @@ void menu_list()
                 break;
 
             case '4': //tutaj znajdowanie elemetu w tablicy
-                std::cout << " podaj waertość:";
+                std::cout << " podaj wartość:";
                 std::cin >> value;
                 if (myList.look4Value(value))
                     std::cout << "poadana wartośc jest w tablicy";
@@ -841,7 +841,7 @@ void menu_list()
                        timeStart = steady_clock::now();
 
                        for (int j = 0; j < trial; j++) {
-                           myList.addValue(0, values[i]);
+                           myList.addValue(0, values[j]);
                        }
 
                        timeEnd = steady_clock::now();
@@ -869,7 +869,7 @@ void menu_list()
                            timeStart = steady_clock::now();
 
                            for (int j = 0; j < trial; j++) {
-                               myList.addValue(indexes[i], values[i]);
+                               myList.addValue(indexes[j], values[j]);
                            }
 
                            timeEnd = steady_clock::now();
@@ -896,7 +896,7 @@ void menu_list()
                            timeStart = steady_clock::now();
 
                            for (int j = 0; j < trial; j++) {
-                               myList.addValue(population+j, values[i]);
+                               myList.addValue(population+j-1, values[j]);
                            }
 
                            timeEnd = steady_clock::now();
@@ -972,7 +972,7 @@ void menu_list()
                            timeStart = steady_clock::now();
 
                            for (int j = 0; j < trial; j++) {
-                               myList.deleteFromList_byIndex(population-j);
+                               myList.deleteFromList_byIndex(population-j-1);
                            }
 
                            timeEnd = steady_clock::now();
@@ -1029,7 +1029,7 @@ void menu_heap()
 {
     char opt;
     string fileName;
-    int index, value;
+    int value;
     int population, trial;
 
 
@@ -1038,28 +1038,28 @@ void menu_heap()
         opt = getche();
         std::cout << std::endl;
         switch (opt) {
-            case '1': //tutaj wczytytwanie  tablicy z pliku
+            case '1': //tutaj wczytywanie tablicy z pliku
                 std::cout << " Podaj nazwę zbioru:";
                 std::cin >> fileName;
                 myHeap.loadFromFile(fileName);
                 myHeap.display();
                 break;
 
-            case '2': //tutaj usuwanie elemenu z tablicy
+            case '2': //tutaj usuwanie elementu z tablicy
                 myHeap.deleteFromHeap();
                 myHeap.display();
                 break;
 
-            case '3': //tutaj dodawanie elemetu do tablicy
-                std::cout << " podaj waertość:";
+            case '3': //tutaj dodawanie elementu do tablicy
+                std::cout << " podaj wartość:";
                 std::cin >> value;
 
                 myHeap.addValue(value);
                 myHeap.display();
                 break;
 
-            case '4': // znajdz
-                std::cout << " podaj waertość:";
+            case '4': // znajdź
+                std::cout << " podaj wartość:";
                 std::cin >> value;
 
                 if (myHeap.IsValueInHeap(value, 0)) {
@@ -1068,7 +1068,7 @@ void menu_heap()
                 break;
 
             case '5': //utwórz losowo
-                std::cout << " podaj waertość:";
+                std::cout << " podaj wartość:";
                 std::cin >> value;
 
                 myHeap.generateHeap(value);
@@ -1079,6 +1079,94 @@ void menu_heap()
                 myHeap.display();
                 break;
 
+            case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego
+                // można sobie tu dodać własne case'y
+
+                std::cout<<"\nCo testujesz?"
+                           "\n1) Dodaj"
+                           "\n2) usun"
+                           "\n3) szukaj";
+
+                trial = 100;
+                int *values = new int[trial];
+                std::cin>> opt;
+                std::cout << "Podaj wielkosc populacji";
+                std::cin >> population;
+                switch(opt) {
+                    case '1':
+                        for (int i = 1; i <= 100; i++) {
+                            myHeap.generateHeap(population);
+                            for(int j =0; j<=trial;j++) values[j]=rand();
+
+                            std::cout << std::endl << i;
+                            timeStart = steady_clock::now();
+
+                            for (int j = 0; j < trial; j++) {
+                                myHeap.addValue(values[j]);
+                            }
+
+                            timeEnd = steady_clock::now();
+
+                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                            timeSum += timeTemp;
+                            std::cout << " timeTemp " << timeTemp.count();
+                        }
+
+                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
+                        std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
+                        std::cout << "\n Laczny czas to: ";
+                        std::cout << timeSum.count() << " sekund";
+                        break;
+
+                    case '2':
+                        for (int i = 1; i <= 100; i++) {
+                            myHeap.generateHeap(population);
+
+                            std::cout << std::endl << i;
+                            timeStart = steady_clock::now();
+
+                            for (int j = 0; j < trial; j++) {
+                                myHeap.deleteFromHeap();
+                            }
+
+                            timeEnd = steady_clock::now();
+
+                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                            timeSum += timeTemp;
+                            std::cout << " timeTemp " << timeTemp.count();
+                        }
+
+                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
+                        std::cout << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
+                        std::cout << "\n Laczny czas to: ";
+                        std::cout << timeSum.count() << " sekund";
+                        break;
+
+                    case '3':
+                        for (int i = 1; i <= 100; i++) {
+                            myHeap.generateHeap(population);
+                            for(int j =0; j<=trial;j++) values[j]=rand();
+
+                            std::cout << std::endl << i;
+                            timeStart = steady_clock::now();
+
+                            for (int j = 0; j < trial; j++) {
+                                myHeap.IsValueInHeap(values[j], 0);
+                            }
+
+                            timeEnd = steady_clock::now();
+
+                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                            timeSum += timeTemp;
+                            std::cout << " timeTemp " << timeTemp.count();
+                        }
+
+                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
+                        std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
+                        std::cout << "\n Laczny czas to: ";
+                        std::cout << timeSum.count() << " sekund";
+                        break;
+                }
         }
     }while(opt!='0');
 }
