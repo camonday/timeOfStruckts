@@ -413,7 +413,7 @@ void Heap::heap_fix_down(int index) {
     //teraz zamiana
     if(heap[index]<heap[bigKidID]){
         swap(heap[index],heap[bigKidID]);
-    }
+    }else return;
 
     heap_fix_down(bigKidID);
 
