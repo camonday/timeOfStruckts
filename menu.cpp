@@ -283,7 +283,7 @@ int List2::loadFromFile(const string& FileName) {
 class Heap {
 
     int *heap = NULL;
-    int lvl=-1, count=0;// lvl - ile poziomów ma sterta, count - ile wezlow jest w stercie
+    int count=0;// count - ile wezlow jest w stercie
     int tabSize=0; //na ile wezlow tablica ma miejsce, zalezy od lvl: tabSize = 2^(lvl+1) -1
 
 public:
@@ -293,7 +293,7 @@ public:
 
     void addValue(int value);
 
-    void deleteFromTable(int index);
+    void deleteFromHeap();
 
     void display();
 
@@ -301,29 +301,30 @@ public:
 
     void clearTable();
 
-    void resize();
+    void upsize();
+    void downsize();
 
-    void heapify(int index);
+    void heap_fix_up(int index);
 
+    void printBT(const std::string& prefix, int index, bool isLeft);
 
 };
 
+
 void Heap::addValue(int value) {
-    if(tabSize == count) resize();
+    if(tabSize == count) upsize();
     heap[count]=value;
 
-    heapify(count);
+    heap_fix_up(count);
 
     count++;
 }
 
-void Heap::resize() {
-    lvl++;
-    tabSize=2^(lvl+1) -1;
+void Heap::upsize() {
+    tabSize+=10;
     int *tabTemp = new int[tabSize];
 
     for(int i=0; i<count; i++){
-        cout<<i<<heap[i];
         tabTemp[i]=heap[i];
     }
 
@@ -334,27 +335,60 @@ void Heap::resize() {
 void Heap::display() {
     for(int i=0; i<count; i++) cout<< heap[i]<<" ";
 
+    printBT("",0,false);
 }
 
-void Heap::heapify(int index) {
+void Heap::printBT(const std::string& prefix, int index, bool isLeft)
+{
+    if( index<count )
+    {
+        std::cout << std::endl <<  prefix;
+        std::cout << (isLeft ? "I--" : "'--" );
+
+        // print the value of the node
+        std::cout << heap[index] ;
+
+        // enter the next tree level - left and right branch
+        printBT( prefix + (isLeft ? "I   " : "    "), 2*index+1, true);
+        printBT( prefix + (isLeft ? "I   " : "    "), 2*index+2, false);
+    }
+}
+
+void Heap::heap_fix_up(int index) {
 
     if (index > 0) {
 
         int parentID = (index-1)/2;
-        cout<<"heapifying \n";
-        int leftID = 2 * parentID + 1;
-        int rightID = leftID + 1;
-        int bigKidID = leftID;
-        if (heap[rightID] > heap[leftID]) bigKidID = rightID;
+        cout<<"fix up \n";
 
-        if (heap[parentID] < heap[bigKidID]) {
-            heap[parentID] += heap[bigKidID];
-            heap[bigKidID] = heap[parentID] - heap[bigKidID];
-            heap[parentID]-=heap[bigKidID];
+        if (heap[parentID] < heap[index]) {
+            heap[parentID] += heap[index];
+            heap[index] = heap[parentID] - heap[index];
+            heap[parentID]-=heap[index];
 
-            heapify(parentID);
+            heap_fix_up(parentID);
         }
     }
+}
+
+void Heap::deleteFromHeap() {
+    count--;
+    heap[0]=heap[count]; //poniewaz indeksujemy od zera to indeks ostatniego elementu toliczba elementow -1
+    if(count<=tabSize-10) downsize();
+
+}
+
+void Heap::downsize() {
+    tabSize-=10;
+    int *tabTemp = new int[tabSize];
+
+    for(int i=0; i<count; i++){
+        tabTemp[i]=heap[i];
+    }
+
+    if (heap != NULL) delete[] heap; //zwolnij pamięć zajmowaną przez stare dane
+    heap = tabTemp;
+
 }
 
 
@@ -957,7 +991,7 @@ void menu_heap()
                 myHeap.display();
                 break;
         }
-    }while(opt!=0);
+    }while(opt!='0');
 }
 
 int main(int argc, char* argv[])
