@@ -7,6 +7,27 @@
 #include<iostream>
 #include <fstream>
 #include <chrono>
+#include <windows.h>
+double PCFreq = 0.0;
+__int64 CounterStart = 0;
+
+void StartCounter()
+{
+    LARGE_INTEGER li;
+    if(!QueryPerformanceFrequency(&li))
+        std::cout << "QueryPerformanceFrequency failed!\n";
+
+    PCFreq = double(li.QuadPart);
+
+    QueryPerformanceCounter(&li);
+    CounterStart = li.QuadPart;
+}
+double GetCounter()
+{
+    LARGE_INTEGER li;
+    QueryPerformanceCounter(&li);
+    return double(li.QuadPart-CounterStart)/PCFreq;
+}
 
 using namespace std;
 using namespace std::chrono;
@@ -15,7 +36,7 @@ using namespace std::chrono;
 //staramy się unikać używania funkcji we/wy w klasie (opócz metody  display)
 class Table
 {
-    int *tab;
+    int *tab=NULL;
     int cnt=0; //ilość elementów w tablicy
 public:
 
@@ -32,15 +53,19 @@ public:
     void generateTable(int size);
 
     void clearTable(){ //czyszcze tabele tzn usuwam ja z pamieci i przypisuje jej null, liczbe elementow w tab zmieniam na 0
-        delete(tab);
-        tab=NULL;
+        if(tab!=NULL){
+            delete(tab);
+            tab=NULL;
+        }
         cnt=0;
     };
 };
 
 bool Table::IsValueInTable(int val) {
     for (int i = 0; i < cnt; i++) {
-        if (tab[i] == val) return true;
+        if (tab[i] == val){
+            return true;
+        }
     }
     return false;
 }
@@ -50,14 +75,12 @@ void Table::addValue(int index, int value) {
     cnt++;
     int *tabTemp = new int[cnt];
 
-    for(int i=0; i<index; i++) tabTemp[i]=tab[i];
-    tabTemp[index]=value;
+    for(int i=0; i<index; i++) tabTemp[i]=tab[i];//
+    tabTemp[index]=value;//
 
 
-    for(int i=index, temp; i<cnt-1;){
-        temp = tab[i];
-        tabTemp[++i]=temp;
-        //std::cout<<tabTemp[i]<<" ";
+    for(int i=index, temp; i<cnt-1;i++){
+        tabTemp[i+1]=tab[i];
     }
 
     if (tab != NULL) delete[] tab; //zwolnij pamięć zajmowaną przez stare dane
@@ -293,7 +316,7 @@ public:
 
     void addValue(int value);
 
-    void deleteFromHeap();
+    void deleteFromHeap(int index);
 
     void display();
 
@@ -373,10 +396,10 @@ void Heap::heap_fix_up(int index) {
     }
 }
 
-void Heap::deleteFromHeap() {
-    if (count > 0) {
+void Heap::deleteFromHeap(int index) {
+    if (index < count) {
         count--;
-        heap[0] = heap[count]; //poniewaz indeksujemy od zera to indeks ostatniego elementu to liczba elementow -1
+        heap[index] = heap[count]; //poniewaz indeksujemy od zera to indeks ostatniego elementu to liczba elementow -1
         if (count <= tabSize - 10) downsize();
 
         heap_fix_down(0);
@@ -461,6 +484,11 @@ int Heap::loadFromFile(string FileName) {
     return 0;
 }
 
+struct Comma final : std::numpunct<char>
+{
+    char do_decimal_point() const override { return ','; }
+};
+
 void displayMenu(const string& info)
 {
     std::cout << std::endl;
@@ -480,6 +508,7 @@ void displayMenu(const string& info)
 Table myTab; //myTab może być dynamiczna, może byc zadeklarowana w manu_table
 List2 myList;
 Heap myHeap;
+int populations[] = {5000, 8000, 10000, 16000, 20000, 40000, 60000,100000};
 
 steady_clock::time_point timeStart, timeEnd;
 duration<double> timeTemp, timeSum;
@@ -489,7 +518,7 @@ void menu_table()
     char opt;
     string fileName;
     int index, value;
-    int trial, population;
+    int trial = 100, population;
 
 
     do{
@@ -544,208 +573,227 @@ void menu_table()
             case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego
                 // można sobie tu dodać własne case'y
 
-                std::cout<<"\nCo testujesz?"
-                           "\n1) Dodaj do przodu"
-                           "\n2) dodaj w losowe miejsce"
-                           "\n3) dodaj na koniec"
-                           "\n4) usun z przodu"
-                           "\n5) usun losowe"
-                           "\n6) usun z tylu"
-                           "\n7) szukaj";
 
-                trial = 100;
+                std::ofstream file("test_tablicy.txt");
+                file.imbue(std::locale(std::locale::classic(), new Comma));
                 int *values = new int[trial];
                 int *indexes = new int [trial];
-                std::cin>> opt;
-                std::cout << "Podaj wielkosc populacji";
-                std::cin >> population;
-                switch(opt) {
-                    case '1':
+                for(int n=0;n<8;n++){
+                    population=populations[n];
+                    cout<<n;
+                    Table tablice[100];
+                    cout<<"\nGeneruje tablice ";
+                    for(int i=0; i<100; i++){
 
-                        myTab.generateTable(population);
-                        //dodawanie na poczatek
-                        for (int i = 1; i <= 100; i++) {
-                            for(int j =0; j<=trial;j++) values[j]=rand();
+                        tablice[i].generateTable(population);
+                        cout<<i<<" ";
+                    }
 
-                            std::cout << std::endl << i;
-                            //std::cout << " prev start: " << timeStart. << std::endl;
-                            timeStart = steady_clock::now();
+/*
 
-                            for (int j = 0; j < trial; j++) {
-                                myTab.addValue(0, values[j]);
-                            }
+                    cout<<"\ndodawanie na poczatek";
+                    timeSum-=timeSum;
+                    for (auto & i : tablice) {
+                        for(int j =0; j<=trial;j++) values[j]=rand();
 
-                            timeEnd = steady_clock::now();
+                        //std::cout << std::endl << i;
+                        timeStart = steady_clock::now();
 
-                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
-                            timeSum += timeTemp;
-                            std::cout << " timeTemp " << timeTemp.count();
+                        for (int j = 0; j < trial; j++) {
+                            i.addValue(0, values[j]);
                         }
 
-                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                        std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
-                        std::cout << "\n Laczny czas to: ";
-                        std::cout << timeSum.count() << "sekund";
-                        break;
+                        timeEnd = steady_clock::now();
 
-                    case '2':
+                        timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                        timeSum += timeTemp;
+                        //std::cout << " timeTemp " << timeTemp.count();
+                    }
 
-                        //dodawanie na losowe
-                        for (int i = 1; i <= 100; i++) {
-                            myTab.generateTable(population);
-                            for(int j =0; j<=trial;j++) values[j]=rand();
-                            for(int j =0; j<=trial;j++) indexes[j]=rand() % population;
+                    file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                    file << "\n Dla kazdej populacji bylo tyle dodawan na poczatek: " << trial;
+                    file << "\n Laczny czas to: ";
+                    file << timeSum.count() << "sekund\n";
 
-                            std::cout << std::endl << i;
-                            timeStart = steady_clock::now();
 
-                            for (int j = 0; j < trial; j++) {
-                                myTab.addValue(indexes[j], values[j]);
-                            }
 
-                            timeEnd = steady_clock::now();
 
-                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
-                            timeSum += timeTemp;
-                            std::cout << " timeTemp " << timeTemp.count();
+                    cout<<"dodawanie na losowe";
+                    timeSum-=timeSum;
+                    for (auto & i : tablice) {
+                        for(int j =0; j<=trial;j++) values[j]=rand();
+                        for(int j =0; j<=trial;j++) indexes[j]=rand() % population;
+
+                        //std::cout << std::endl << i;
+                        timeStart = steady_clock::now();
+
+                        for (int j = 0; j < trial; j++) {
+                            i.addValue(indexes[j], values[j]);
                         }
 
-                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                        std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
-                        std::cout << "\n Laczny czas to: ";
-                        std::cout << timeSum.count() << " sekund";
-                        break;
+                        timeEnd = steady_clock::now();
 
-                    case '3':
+                        timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                        timeSum += timeTemp;
+                        //std::cout << " timeTemp " << timeTemp.count();
+                    }
 
-                        //dodawanie na koniec
-                        for (int i = 1; i <= 100; i++) {
-                            myTab.generateTable(population);
-                            for(int j =0; j<=trial;j++) values[j]=rand();
+                    file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                    file << "\n Dla kazdej populacji bylo tyle dodawan w losowe: " << trial;
+                    file << "\n Laczny czas to: ";
+                    file << timeSum.count() << " sekund\n";
 
-                            std::cout << std::endl << i;
-                            timeStart = steady_clock::now();
 
-                            for (int j = 0; j < trial; j++) {
-                                myTab.addValue(population+j-1, values[j]);
-                            }
 
-                            timeEnd = steady_clock::now();
 
-                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
-                            timeSum += timeTemp;
-                            std::cout << " timeTemp " << timeTemp.count();
+                    cout<<"dodawanie na koniec";
+                    timeSum-=timeSum;
+                    for (auto & i : tablice) {
+                        //myTab.generateTable(population);
+                        for(int j =0; j<=trial;j++) values[j]=rand();
+
+                        //std::cout << std::endl << i;
+                        timeStart = steady_clock::now();
+
+                        for (int j = 0; j < trial; j++) {
+                            i.addValue(population+j-1, values[j]);
                         }
 
-                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                        std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
-                        std::cout << "\n Laczny czas to: ";
-                        std::cout << timeSum.count() << " sekund";
-                        break;
+                        timeEnd = steady_clock::now();
 
-                    case '4':
-                        //usun z przodu
-                        for (int i = 1; i <= 100; i++) {
-                            myTab.generateTable(population);
+                        timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                        timeSum += timeTemp;
+                        //std::cout << " timeTemp " << timeTemp.count();
+                    }
 
-                            std::cout << std::endl << i;
-                            timeStart = steady_clock::now();
+                    file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                    file << "\n Dla kazdej populacji bylo tyle dodawan na koniec: " << trial;
+                    file << "\n Laczny czas to: ";
+                    file << timeSum.count() << " sekund\n";
 
-                            for (int j = 0; j < trial; j++) {
-                                myTab.deleteFromTable(0);
-                            }
 
-                            timeEnd = steady_clock::now();
 
-                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
-                            timeSum += timeTemp;
-                            std::cout << " timeTemp " << timeTemp.count();
+                    cout<<"usun z przodu";
+                    timeSum-=timeSum;
+                    for (auto & i : tablice) {
+                       // myTab.generateTable(population);
+
+                        //std::cout << std::endl << i;
+                        timeStart = steady_clock::now();
+
+                        for (int j = 0; j < trial; j++) {
+                            i.deleteFromTable(0);
                         }
 
-                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                        std::cout << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
-                        std::cout << "\n Laczny czas to: ";
-                        std::cout << timeSum.count() << " sekund";
-                        break;
+                        timeEnd = steady_clock::now();
 
-                    case '5':
-                        //usun z losowe
-                        for (int i = 1; i <= 100; i++) {
-                            myTab.generateTable(population);
-                            for(int j =0; j<=trial;j++) indexes[j]=rand() % population;
+                        timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                        timeSum += timeTemp;
+                        //std::cout << " timeTemp " << timeTemp.count();
+                    }
 
-                            std::cout << std::endl << i;
-                            timeStart = steady_clock::now();
+                    file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                    file << "\n Dla kazdej populacji bylo tyle usuniec z poczatku: " << trial;
+                    file << "\n Laczny czas to: ";
+                    file << timeSum.count() << " sekund\n";
 
-                            for (int j = 0; j < trial; j++) {
-                                myTab.deleteFromTable(indexes[j]);
-                            }
 
-                            timeEnd = steady_clock::now();
 
-                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
-                            timeSum += timeTemp;
-                            std::cout << " timeTemp " << timeTemp.count();
+                    cout<<"usun z losowe";
+                    timeSum-=timeSum;
+                    for (auto & i : tablice) {
+                       // myTab.generateTable(population);
+                        for(int j =0; j<=trial;j++) indexes[j]=rand() % (population-101);
+
+                        //std::cout << std::endl << i;
+                        timeStart = steady_clock::now();
+
+                        for (int j = 0; j < trial; j++) {
+                            i.deleteFromTable(indexes[j]);
                         }
 
-                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                        std::cout << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
-                        std::cout << "\n Laczny czas to: ";
-                        std::cout << timeSum.count() << " sekund";
-                        break;
+                        timeEnd = steady_clock::now();
 
-                    case '6':
-                        //usun z tylu
-                        for (int i = 1; i <= 100; i++) {
-                            myTab.generateTable(population);
+                        timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                        timeSum += timeTemp;
+                        //std::cout << " timeTemp " << timeTemp.count();
+                    }
 
-                            std::cout << std::endl << i;
-                            timeStart = steady_clock::now();
+                    file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                    file << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
+                    file << "\n Laczny czas to: ";
+                    file << timeSum.count() << " sekund\n";
 
-                            for (int j = 0; j < trial; j++) {
-                                myTab.deleteFromTable(population-j-1);
-                            }
 
-                            timeEnd = steady_clock::now();
 
-                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
-                            timeSum += timeTemp;
-                            std::cout << " timeTemp " << timeTemp.count();
+                    cout<<"usun z tylu";
+                    timeSum-=timeSum;
+                    for (auto & i : tablice) {
+                        //myTab.generateTable(population);
+
+                        //std::cout << std::endl << i;
+                        timeStart = steady_clock::now();
+
+                        for (int j = 0; j < trial; j++) {
+                            i.deleteFromTable(population-j-1);
                         }
 
-                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                        std::cout << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
-                        std::cout << "\n Laczny czas to: ";
-                        std::cout << timeSum.count() << " sekund";
-                        break;
+                        timeEnd = steady_clock::now();
 
-                    case '7':
-                        //wyszukaj
-                        for (int i = 1; i <= 100; i++) {
-                            myTab.generateTable(population);
-                            for(int j =0; j<=trial;j++) values[j]=rand();
+                        timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
+                        timeSum += timeTemp;
+                        //std::cout << " timeTemp " << timeTemp.count();
+                    }
 
-                            std::cout << std::endl << i;
-                            timeStart = steady_clock::now();
+                    file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                    file << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
+                    file << "\n Laczny czas to: ";
+                    file << timeSum.count() << " sekund\n";
 
-                            for (int j = 0; j < trial; j++) {
-                                myTab.IsValueInTable(values[j]);
-                            }
 
-                            timeEnd = steady_clock::now();
+*/
+                    cout<<"wyszukaj";
+                    timeSum-=timeSum;
 
-                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
-                            timeSum += timeTemp;
-                            std::cout << " timeTemp " << timeTemp.count();
+                    for(int j =0; j<=trial;j++) values[j]=rand();
+                    //high_resolution_clock::time_point t1 = high_resolution_clock::now();
+                    //typedef std::chrono::high_resolution_clock Clock;
+                    //auto t1 = Clock::now();
+
+                    double timex=0;
+                                            //auto t1 = std::chrono::high_resolution_clock::now();
+                    for (auto & i : tablice) {
+                        //myTab.generateTable(population);
+
+
+                        //std::cout << std::endl << i;
+
+                        StartCounter();
+                        for (int j = 0; j < trial; j++) {
+                            for(int k=0;k<100;k++){ i.IsValueInTable(values[j]+k);}
                         }
+                        timex+= GetCounter();
+                        //ti
 
-                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                        std::cout << "\n Dla kazdej populacji bylo tyle wyszukiwan: " << trial;
-                        std::cout << "\n Laczny czas to: ";
-                        std::cout << timeSum.count() << " sekund";
-                        break;
+
+
+                        //timeSum += time_span;
+                        //std::cout << " timeTemp " << time_span.count();
+                    }
+                    //high_resolution_clock::time_point t2 = high_resolution_clock::now();
+                    //auto t2 = Clock::now();
+                      //                 std::cout << (t2-t1).count() << '\n';
+                    //auto t2 = std::chrono::high_resolution_clock::now();
+
+                    cout<<timex;
+                    file<< "\nZrobilismy 100 populacji wielkosci: " << population;
+                    file<< "\n Dla kazdej populacji bylo tyle wyszukiwan: " << trial*100;
+                    file<< "\n Laczny czas to: ";
+                    file<< timex << " sekund";
+
 
                 }
+                file.close();
                 opt =0;
                 break;
         }
@@ -812,209 +860,214 @@ void menu_list()
 
             case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego
                 // można sobie tu dodać własne case'y
-
-               std::cout<<"\nCo testujesz?"
-                     "\n1) Dodaj do przodu"
-                     "\n2) dodaj w losowe miejsce"
-                     "\n3) dodaj na koniec"
-                     "\n4) usun z przodu"
-                     "\n5) usun losowe"
-                     "\n6) usun z tylu"
-                     "\n7) szukaj";
-
+                std::ofstream file("test_listy.txt");
+                file.imbue(std::locale(std::locale::classic(), new Comma));
                 trial = 100;
                 int *values = new int[trial];
                 int *indexes = new int [trial];
-                std::cin>> opt;
-                std::cout << "Podaj wielkosc populacji";
-                std::cin >> population;
-               switch(opt) {
-                   case '1':
+                List2 listy[100];
+                for(int n=0;n<8;n++){
+                    population=populations[n];
+                    cout<<n;
+                    cout<<"\nGeneruje listy ";
 
-                   myList.generateList(population);
-                   //dodawanie na poczatek
-                   for (int i = 1; i <= 100; i++) {
+                    for(int i=0; i<100; i++){
+                        listy[i].generateList(population);
+                        cout<<i<<" ";
+                    }
+
+
+                    timeSum-=timeSum;
+                   cout<<" dodawanie na poczatek";
+                   for (auto & i : listy) {
+                       //i.generateList(population);
                        for(int j =0; j<=trial;j++) values[j]=rand();
 
-                       std::cout << std::endl << i;
+                       //std::cout << std::endl << i;
                        //std::cout << " prev start: " << timeStart. << std::endl;
                        timeStart = steady_clock::now();
 
                        for (int j = 0; j < trial; j++) {
-                           myList.addValue(0, values[j]);
+                           i.addValue(0, values[j]);
                        }
 
                        timeEnd = steady_clock::now();
 
                        timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
                        timeSum += timeTemp;
-                       std::cout << " timeTemp " << timeTemp.count();
+                       //std::cout << " timeTemp " << timeTemp.count();
                    }
 
-                   std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                   std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
-                   std::cout << "\n Laczny czas to: ";
-                   std::cout << timeSum.count() << "sekund";
-                   break;
+                   file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                   file << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
+                   file << "\n Laczny czas to: ";
+                   file << timeSum.count() << "sekund";
+                   //break;
 
-                   case '2':
-
-                       //dodawanie na losowe
-                       for (int i = 1; i <= 100; i++) {
-                           myList.generateList(population);
+                   //case '2':
+                    timeSum-=timeSum;
+                       cout<<"dodawanie na losowe";
+                       for (auto & i : listy) {
+                       //i.generateList(population);
                            for(int j =0; j<=trial;j++) values[j]=rand();
                            for(int j =0; j<=trial;j++) indexes[j]=rand() % population;
 
-                           std::cout << std::endl << i;
+                          // std::cout << std::endl << i;
                            timeStart = steady_clock::now();
 
                            for (int j = 0; j < trial; j++) {
-                               myList.addValue(indexes[j], values[j]);
+                               i.addValue(indexes[j], values[j]);
                            }
 
                            timeEnd = steady_clock::now();
 
                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
                            timeSum += timeTemp;
-                           std::cout << " timeTemp " << timeTemp.count();
+                           //std::cout << " timeTemp " << timeTemp.count();
                        }
 
-                       std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                       std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
-                       std::cout << "\n Laczny czas to: ";
-                       std::cout << timeSum.count() << " sekund";
-                       break;
+                       file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                       file << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
+                       file << "\n Laczny czas to: ";
+                       file << timeSum.count() << " sekund";
+                       //break;
 
-                   case '3':
-
-                       //dodawanie na koniec
-                       for (int i = 1; i <= 100; i++) {
-                           myList.generateList(population);
+                   //case '3':
+                    timeSum-=timeSum;
+                       cout<<"dodawanie na koniec";
+                       for (auto & i : listy) {
+                       //i.generateList(population);
                            for(int j =0; j<=trial;j++) values[j]=rand();
 
-                           std::cout << std::endl << i;
+                           //std::cout << std::endl << i;
                            timeStart = steady_clock::now();
 
                            for (int j = 0; j < trial; j++) {
-                               myList.addValue(population+j-1, values[j]);
+                               i.addValue(population+j-1, values[j]);
                            }
 
                            timeEnd = steady_clock::now();
 
                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
                            timeSum += timeTemp;
-                           std::cout << " timeTemp " << timeTemp.count();
+                           //std::cout << " timeTemp " << timeTemp.count();
                        }
 
-                       std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                       std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
-                       std::cout << "\n Laczny czas to: ";
-                       std::cout << timeSum.count() << " sekund";
-                       break;
+                       file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                       file << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
+                       file << "\n Laczny czas to: ";
+                       file << timeSum.count() << " sekund";
+                       //break;
 
-                   case '4':
-                       //usun z przodu
-                       for (int i = 1; i <= 100; i++) {
-                           myList.generateList(population);
+                   //case '4':
+                    timeSum-=timeSum;
+                      cout<<"usun z przodu";
+                       for (auto & i : listy) {
+                       //i.generateList(population);
 
-                           std::cout << std::endl << i;
+                           //std::cout << std::endl << i;
                            timeStart = steady_clock::now();
 
                            for (int j = 0; j < trial; j++) {
-                               myList.deleteFromList_byIndex(0);
+                               i.deleteFromList_byIndex(0);
                            }
 
                            timeEnd = steady_clock::now();
 
                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
                            timeSum += timeTemp;
-                           std::cout << " timeTemp " << timeTemp.count();
+                           //std::cout << " timeTemp " << timeTemp.count();
                        }
 
-                       std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                       std::cout << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
-                       std::cout << "\n Laczny czas to: ";
-                       std::cout << timeSum.count() << " sekund";
-                       break;
+                       file<< "\nZrobilismy 100 populacji wielkosci: " << population;
+                       file<< "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
+                       file<< "\n Laczny czas to: ";
+                       file<< timeSum.count() << " sekund";
+                       //break;
 
-                   case '5':
-                       //usun z losowe
-                       for (int i = 1; i <= 100; i++) {
-                           myList.generateList(population);
-                           for(int j =0; j<=trial;j++) indexes[j]=rand() % population;
+                   //case '5':
+                    timeSum-=timeSum;
+                      cout<<"usun z losowe";
+                       for (auto & i : listy) {
+                       //i.generateList(population);
+                           for(int j =0; j<=trial;j++) indexes[j]=rand() % (population-101);
 
-                           std::cout << std::endl << i;
+                           //std::cout << std::endl << i;
                            timeStart = steady_clock::now();
 
                            for (int j = 0; j < trial; j++) {
-                               myList.deleteFromList_byIndex(indexes[j]);
+                               i.deleteFromList_byIndex(indexes[j]);
                            }
 
                            timeEnd = steady_clock::now();
 
                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
                            timeSum += timeTemp;
-                           std::cout << " timeTemp " << timeTemp.count();
+                           //std::cout << " timeTemp " << timeTemp.count();
                        }
 
-                       std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                       std::cout << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
-                       std::cout << "\n Laczny czas to: ";
-                       std::cout << timeSum.count() << " sekund";
-                       break;
+                       file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                       file << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
+                       file << "\n Laczny czas to: ";
+                       file << timeSum.count() << " sekund";
+                       //break;
 
-                   case '6':
-                       //usun z tylu
-                       for (int i = 1; i <= 100; i++) {
-                           myList.generateList(population);
+                   //case '6':
+                    timeSum-=timeSum;
+                       cout<<"usun z tylu";
+                       for (auto & i : listy) {
+                       //i.generateList(population);
 
-                           std::cout << std::endl << i;
+                           //std::cout << std::endl << i;
                            timeStart = steady_clock::now();
 
                            for (int j = 0; j < trial; j++) {
-                               myList.deleteFromList_byIndex(population-j-1);
+                               i.deleteFromList_byIndex(population-j-1);
                            }
 
                            timeEnd = steady_clock::now();
 
                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
                            timeSum += timeTemp;
-                           std::cout << " timeTemp " << timeTemp.count();
+                           //std::cout << " timeTemp " << timeTemp.count();
                        }
 
-                       std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                       std::cout << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
-                       std::cout << "\n Laczny czas to: ";
-                       std::cout << timeSum.count() << " sekund";
-                       break;
+                       file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                       file << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
+                       file << "\n Laczny czas to: ";
+                       file << timeSum.count() << " sekund";
+                       //break;
 
-                   case '7':
-                       //wyszukaj
-                       for (int i = 1; i <= 100; i++) {
-                           myList.generateList(population);
+                   //case '7':
+                       cout<<"wyszukaj\n";
+                       timeSum-=timeSum;
+                       for (auto & i : listy) {
+                       //i.generateList(population);
                            for(int j =0; j<=trial;j++) values[j]=rand();
 
-                           std::cout << std::endl << i;
+                           //std::cout << std::endl << i;
                            timeStart = steady_clock::now();
 
                            for (int j = 0; j < trial; j++) {
-                               myList.look4Value(values[j]);
+                               i.look4Value(values[j]);
                            }
 
                            timeEnd = steady_clock::now();
 
                            timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
                            timeSum += timeTemp;
-                           std::cout << " timeTemp " << timeTemp.count();
+                           //std::cout << " timeTemp " << timeTemp.count();
                        }
 
-                       std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                       std::cout << "\n Dla kazdej populacji bylo tyle wyszukiwan: " << trial;
-                       std::cout << "\n Laczny czas to: ";
-                       std::cout << timeSum.count() << " sekund";
-                       break;
+                      file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                      file << "\n Dla kazdej populacji bylo tyle wyszukiwan: " << trial;
+                      file << "\n Laczny czas to: ";
+                      file << timeSum.count() << " sekund";
+                       //break;
 
-               }
+
+
+               }file.close();
                opt =0;
                 break;
 
@@ -1046,7 +1099,9 @@ void menu_heap()
                 break;
 
             case '2': //tutaj usuwanie elementu z tablicy
-                myHeap.deleteFromHeap();
+                std::cout << " Podaj indeks:";
+                std::cin >> value;
+                myHeap.deleteFromHeap(value);
                 myHeap.display();
                 break;
 
@@ -1082,97 +1137,109 @@ void menu_heap()
             case '7': //tutaj nasza funkcja do eksperymentów (pomiary czasów i generowanie daneych) - nie będzie testowana przez prowadzącego
                 // można sobie tu dodać własne case'y
 
-                std::cout<<"\nCo testujesz?"
-                           "\n1) Dodaj"
-                           "\n2) usun"
-                           "\n3) szukaj";
-
+                std::ofstream file("test_sterty.txt");
+                file.imbue(std::locale(std::locale::classic(), new Comma));
                 trial = 100;
                 int *values = new int[trial];
-                std::cin>> opt;
-                std::cout << "Podaj wielkosc populacji";
-                std::cin >> population;
-                switch(opt) {
-                    case '1':
-                        for (int i = 1; i <= 100; i++) {
-                            myHeap.generateHeap(population);
+                Heap sterty[100];
+
+                for(int n=0;n<8;n++){
+                    population=populations[n];
+                    cout<<n;
+                    cout<<"\nGeneruje sterty ";
+
+                    for(int i=0; i<100; i++){
+                        sterty[i].generateHeap(population);
+                        cout<<i<<" ";
+                    }
+
+                    cout<<"//case '1':";
+                    timeSum-=timeSum;
+                        for (auto & i : sterty) {
+                            //myHeap.generateHeap(population);
                             for(int j =0; j<=trial;j++) values[j]=rand();
 
-                            std::cout << std::endl << i;
+                            //std::cout << std::endl << i;
                             timeStart = steady_clock::now();
 
                             for (int j = 0; j < trial; j++) {
-                                myHeap.addValue(values[j]);
+                                i.addValue(values[j]);
                             }
 
                             timeEnd = steady_clock::now();
 
                             timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
                             timeSum += timeTemp;
-                            std::cout << " timeTemp " << timeTemp.count();
+                            //std::cout << " timeTemp " << timeTemp.count();
                         }
 
-                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                        std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
-                        std::cout << "\n Laczny czas to: ";
-                        std::cout << timeSum.count() << " sekund";
-                        break;
+                        file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                        file << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
+                        file << "\n Laczny czas to: ";
+                        file << timeSum.count() << " sekund";
+                        //break;
 
-                    case '2':
-                        for (int i = 1; i <= 100; i++) {
-                            myHeap.generateHeap(population);
+                    cout<<"case '2':";
+                    timeSum-=timeSum;
+                    for (auto & i : sterty) {
+                        //myHeap.generateHeap(population);
 
-                            std::cout << std::endl << i;
+                            //std::cout << std::endl << i;
                             timeStart = steady_clock::now();
 
                             for (int j = 0; j < trial; j++) {
-                                myHeap.deleteFromHeap();
+                                i.deleteFromHeap(0);
                             }
 
                             timeEnd = steady_clock::now();
 
                             timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
                             timeSum += timeTemp;
-                            std::cout << " timeTemp " << timeTemp.count();
+                            //std::cout << " timeTemp " << timeTemp.count();
                         }
 
-                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                        std::cout << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
-                        std::cout << "\n Laczny czas to: ";
-                        std::cout << timeSum.count() << " sekund";
-                        break;
+                        file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                        file << "\n Dla kazdej populacji bylo tyle usuniec: " << trial;
+                        file << "\n Laczny czas to: ";
+                        file << timeSum.count() << " sekund";
+                        //break;
 
-                    case '3':
-                        for (int i = 1; i <= 100; i++) {
-                            myHeap.generateHeap(population);
+                    cout<<"case '3':\n";
+                    timeSum-=timeSum;
+                    for (auto & i : sterty) {
+                        //myHeap.generateHeap(population);
                             for(int j =0; j<=trial;j++) values[j]=rand();
 
-                            std::cout << std::endl << i;
+                            //std::cout << std::endl << i;
                             timeStart = steady_clock::now();
 
                             for (int j = 0; j < trial; j++) {
-                                myHeap.IsValueInHeap(values[j], 0);
+                                i.IsValueInHeap(values[j], 0);
                             }
 
                             timeEnd = steady_clock::now();
 
                             timeTemp = duration_cast<duration<double>>(timeEnd - timeStart);
                             timeSum += timeTemp;
-                            std::cout << " timeTemp " << timeTemp.count();
+                            //std::cout << " timeTemp " << timeTemp.count();
                         }
 
-                        std::cout << "\nZrobilismy 100 populacji wielkosci: " << population;
-                        std::cout << "\n Dla kazdej populacji bylo tyle dodawan: " << trial;
-                        std::cout << "\n Laczny czas to: ";
-                        std::cout << timeSum.count() << " sekund";
-                        break;
-                }
+                        file << "\nZrobilismy 100 populacji wielkosci: " << population;
+                        file << "\n Dla kazdej populacji bylo tyle wyszukan: " << trial;
+                        file << "\n Laczny czas to: ";
+                        file << timeSum.count() << " sekund";
+                        //break;
+
+
+                }file.close();
         }
     }while(opt!='0');
 }
 
 int main(int argc, char* argv[])
 {
+
+
 
     char option;
     do{
