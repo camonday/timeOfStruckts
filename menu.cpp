@@ -589,7 +589,7 @@ void menu_table()
                         cout<<i<<" ";
                     }
 
-/*
+
 
                     cout<<"\ndodawanie na poczatek";
                     timeSum-=timeSum;
@@ -751,7 +751,7 @@ void menu_table()
                     file << timeSum.count() << " sekund\n";
 
 
-*/
+
                     cout<<"wyszukaj";
                     timeSum-=timeSum;
 
